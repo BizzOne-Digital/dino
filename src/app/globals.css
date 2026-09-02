@@ -1,0 +1,94 @@
+@import "tailwindcss";
+
+@theme {
+  --color-forest: #173f2d;
+  --color-dino: #78a83b;
+  --color-cocoa: #583629;
+  --color-caramel: #c86b32;
+  --color-beige: #e7c99b;
+  --color-cream: #fff5e3;
+  --color-purple: #704675;
+  --color-charcoal: #241d19;
+  --font-display: "Fredoka", system-ui, sans-serif;
+  --font-body: "Nunito", system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-cream text-charcoal font-body antialiased overflow-x-hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer utilities {
+  .gradient-forest {
+    background: linear-gradient(135deg, #173f2d 0%, #2a5c3f 50%, #78a83b 100%);
+  }
+
+  .gradient-caramel {
+    background: linear-gradient(135deg, #c86b32 0%, #e8944a 50%, #f5b86a 100%);
+  }
+
+  .gradient-cream {
+    background: linear-gradient(180deg, #fff5e3 0%, #e7c99b 100%);
+  }
+
+  .gradient-purple {
+    background: linear-gradient(135deg, #704675 0%, #8b5a6f 50%, #583629 100%);
+  }
+
+  .text-gradient {
+    background: linear-gradient(135deg, #173f2d, #78a83b, #c86b32);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .glass {
+    background: rgba(255, 245, 227, 0.75);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+
+  .blob {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .safe-top {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+::selection {
+  background: #78a83b;
+  color: #fff5e3;
+}
