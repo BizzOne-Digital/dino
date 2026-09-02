@@ -24,7 +24,7 @@ export function AnnouncementBar({ announcement, publicCodes }: AnnouncementBarPr
         initial={{ height: 0, opacity: 0 }}
         animate={{ height: "auto", opacity: 1 }}
         exit={{ height: 0, opacity: 0 }}
-        className="relative z-50 border-b border-forest/5 bg-[#faf3e8]"
+        className="relative z-50 border-b border-forest/10 bg-gradient-to-r from-dino/15 via-[#faf3e8] to-caramel/10"
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-2">
           <div className="flex flex-1 flex-wrap items-center justify-center gap-x-4 gap-y-1 text-center">

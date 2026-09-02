@@ -70,7 +70,7 @@ export function CategoryShowcase({ categories }: CategoryShowcaseProps) {
   const items = (categories?.length ? categories.slice(0, 5) : DEFAULT_CATEGORIES).slice(0, 5);
 
   return (
-    <section className="py-20 px-4 lg:px-6">
+    <section className="py-20 px-4 lg:px-6 relative overflow-hidden section-gradient-warm">
       <div className="mx-auto max-w-7xl">
         <motion.div
           className="text-center mb-12"

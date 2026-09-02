@@ -25,8 +25,7 @@ export function SpecialOffers({ promotions }: SpecialOffersProps) {
   const items = promotions?.length ? promotions : DEFAULT_PROMOTIONS;
 
   return (
-    <section id="offers" className="py-20 px-4 lg:px-6 relative overflow-hidden">
-      <div className="absolute inset-0 bg-forest" />
+    <section id="offers" className="py-20 px-4 lg:px-6 relative overflow-hidden section-gradient-cool">
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-20 -right-20 h-80 w-80 blob bg-dino/20 blur-3xl" />
         <div className="absolute -bottom-20 -left-20 h-80 w-80 blob bg-caramel/15 blur-3xl" />

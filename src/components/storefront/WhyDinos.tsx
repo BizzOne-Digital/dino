@@ -34,7 +34,7 @@ export function WhyDinos() {
 
   return (
     <section className="py-20 px-4 lg:px-6 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-b from-cream to-beige/30" />
+      <div className="absolute inset-0 bg-gradient-to-b from-cream via-beige/20 to-cream" />
       <div className="relative mx-auto max-w-7xl">
         <div className="grid gap-16 lg:grid-cols-2 lg:items-center lg:gap-16">
           <motion.div

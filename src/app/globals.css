@@ -60,6 +60,39 @@
     background-clip: text;
   }
 
+  .text-gradient-warm {
+    background: linear-gradient(135deg, #c86b32 0%, #e8944a 45%, #a85a28 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .btn-gradient {
+    background: linear-gradient(135deg, #173f2d 0%, #2a5c3f 40%, #78a83b 100%);
+    transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+  }
+
+  .btn-gradient:hover {
+    background: linear-gradient(135deg, #1a4d35 0%, #3d7a52 50%, #8fc44a 100%);
+    box-shadow: 0 8px 24px rgba(23, 63, 45, 0.35);
+  }
+
+  .section-gradient-warm {
+    background: linear-gradient(180deg, #fff5e3 0%, #f5ebe0 40%, #e7c99b30 100%);
+  }
+
+  .section-gradient-cool {
+    background: linear-gradient(135deg, #173f2d 0%, #1f4d38 50%, #2a5c3f 100%);
+  }
+
+  .mesh-gradient {
+    background:
+      radial-gradient(ellipse at 20% 50%, rgba(120, 168, 59, 0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, rgba(200, 107, 50, 0.12) 0%, transparent 50%),
+      radial-gradient(ellipse at 60% 80%, rgba(112, 70, 117, 0.08) 0%, transparent 50%),
+      linear-gradient(180deg, #fff5e3 0%, #f5ebe0 100%);
+  }
+
   .glass {
     background: rgba(255, 245, 227, 0.75);
     backdrop-filter: blur(16px);

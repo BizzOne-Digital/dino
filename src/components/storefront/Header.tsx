@@ -50,7 +50,7 @@ export function Header({ settings, onSearch }: HeaderProps) {
         "sticky top-0 z-40 transition-all duration-300",
         scrolled
           ? "glass shadow-md shadow-forest/5"
-          : "bg-[#faf3e8]/90 backdrop-blur-sm"
+          : "bg-gradient-to-r from-[#faf3e8]/95 via-cream/90 to-beige/30 backdrop-blur-md"
       )}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 lg:px-8">
@@ -106,7 +106,7 @@ export function Header({ settings, onSearch }: HeaderProps) {
 
           <a
             href="#shop"
-            className="hidden rounded-full bg-forest px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-cream shadow-md transition-all hover:bg-[#1a4d35] sm:inline-block"
+            className="hidden rounded-full bg-gradient-to-r from-forest to-dino px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-cream shadow-md shadow-forest/25 transition-all hover:shadow-lg hover:shadow-dino/30 sm:inline-block"
           >
             Order Fresh
           </a>
@@ -171,7 +171,7 @@ export function Header({ settings, onSearch }: HeaderProps) {
               <a
                 href="#shop"
                 onClick={() => setMobileOpen(false)}
-                className="mt-2 rounded-full bg-forest px-4 py-3 text-center text-sm font-bold uppercase text-cream"
+                className="mt-2 rounded-full bg-gradient-to-r from-forest to-dino px-4 py-3 text-center text-sm font-bold uppercase text-cream shadow-md"
               >
                 Order Fresh
               </a>

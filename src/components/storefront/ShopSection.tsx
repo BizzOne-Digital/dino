@@ -131,7 +131,7 @@ export function ShopSection({ initialSearch = "", initialCategory = "" }: ShopSe
   };
 
   return (
-    <section id="shop" className="py-20 px-4 lg:px-6 bg-gradient-cream">
+    <section id="shop" className="py-20 px-4 lg:px-6 mesh-gradient relative overflow-hidden">
       <div className="mx-auto max-w-7xl">
         <motion.div
           className="text-center mb-10"

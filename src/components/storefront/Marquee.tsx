@@ -26,14 +26,14 @@ export function Marquee({ items, speed = 30, className = "" }: MarqueeProps) {
 
   if (reducedMotion) {
     return (
-      <div className={`overflow-hidden bg-forest py-3 ${className}`}>
+      <div className={`overflow-hidden gradient-forest py-3 ${className}`}>
         <p className="text-center text-sm font-medium text-cream">{content}</p>
       </div>
     );
   }
 
   return (
-    <div className={`overflow-hidden bg-forest py-3 ${className}`} aria-hidden="true">
+    <div className={`overflow-hidden gradient-forest py-3 ${className}`} aria-hidden="true">
       <motion.div
         className="flex whitespace-nowrap"
         animate={{ x: ["0%", "-50%"] }}
