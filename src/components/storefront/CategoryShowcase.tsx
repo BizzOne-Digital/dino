@@ -27,7 +27,7 @@ const DEFAULT_CATEGORIES: Category[] = [
     _id: "2",
     name: "Cookies",
     slug: "cookies",
-    description: "13 cookie flavours",
+    description: "15 cookie flavours",
     startingPrice: 350,
   },
   {
