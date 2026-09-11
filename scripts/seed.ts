@@ -9,12 +9,31 @@ import { PromotionRule } from "../src/models/PromotionRule";
 import { FAQ } from "../src/models/FAQ";
 import { Testimonial } from "../src/models/Testimonial";
 import { SiteSettings } from "../src/models/SiteSettings";
+import {
+  slugify,
+  MENU_CATEGORIES,
+  LEGACY_CATEGORY_SLUGS,
+  BAGEL_FLAVORS,
+  COOKIE_FLAVORS,
+  BAGEL_PACK_VARIANTS,
+  COOKIE_PACK_VARIANTS,
+  productImagePath,
+} from "./menu-data";
+
+function packVariants(
+  variants: { name: string; price: number }[]
+) {
+  return variants.map((v) => ({
+    ...v,
+    stock: 50,
+    inStock: true,
+  }));
+}
 
 async function seed() {
   await connectDB();
   console.log("Connected to MongoDB");
 
-  // Admin user
   const adminEmail = process.env.INITIAL_ADMIN_EMAIL || "admin@dinoscookiesandbagels.ca";
   const adminPassword = process.env.INITIAL_ADMIN_PASSWORD || "ChangeMe123!";
 
@@ -32,216 +51,212 @@ async function seed() {
     console.log("Admin already exists");
   }
 
-  // Categories
-  const categories = [
-    {
-      name: "Sourdough Bagels",
-      slug: "bagels",
-      description: "Hand-rolled, boiled, and baked to perfection using our signature sourdough starter.",
-      startingPrice: 350,
-      productCount: 0,
-      order: 1,
-    },
-    {
-      name: "Chocolate Chip Cookies",
-      slug: "cookies",
-      description: "Thick, chewy cookies loaded with premium chocolate chips.",
-      startingPrice: 300,
-      productCount: 0,
-      order: 2,
-    },
-    {
-      name: "Gluten-Free Bakes",
-      slug: "gluten-free",
-      description: "Delicious gluten-free options made with care.",
-      startingPrice: 400,
-      productCount: 0,
-      order: 3,
-    },
-    {
-      name: "English Muffins",
-      slug: "english-muffins",
-      description: "Sourdough English muffins with a perfect nooks-and-crannies texture.",
-      startingPrice: 450,
-      productCount: 0,
-      order: 4,
-    },
-    {
-      name: "Sourdough Bread",
-      slug: "sourdough-bread",
-      description: "Artisan sourdough loaves available by request.",
-      isRequestOnly: true,
-      productCount: 0,
-      order: 5,
-    },
-  ];
-
   const categoryMap: Record<string, mongoose.Types.ObjectId> = {};
-  for (const cat of categories) {
-    const existing = await ProductCategory.findOne({ slug: cat.slug });
-    if (existing) {
-      categoryMap[cat.slug] = existing._id;
-    } else {
-      const created = await ProductCategory.create(cat);
-      categoryMap[cat.slug] = created._id;
-      console.log(`Category created: ${cat.name}`);
-    }
+
+  for (const cat of MENU_CATEGORIES) {
+    const updated = await ProductCategory.findOneAndUpdate(
+      { slug: cat.slug },
+      {
+        $set: {
+          name: cat.name,
+          description: cat.description,
+          startingPrice: cat.startingPrice,
+          order: cat.order,
+          isActive: true,
+          isRequestOnly: false,
+        },
+      },
+      { upsert: true, new: true }
+    );
+    categoryMap[cat.slug] = updated._id;
+    console.log(`Category synced: ${cat.name}`);
   }
 
-  // Products
-  const sampleProducts = [
-    {
-      name: "Everything Sourdough Bagel",
-      slug: "sample-everything-bagel",
-      shortDescription: "Classic everything bagel with sesame, poppy & more",
-      description: "Hand-rolled sourdough bagel topped with everything seasoning. Boiled and baked fresh daily.",
+  await ProductCategory.updateMany(
+    { slug: { $in: LEGACY_CATEGORY_SLUGS } },
+    { $set: { isActive: false } }
+  );
+
+  const menuProducts: Array<{
+    name: string;
+    slug: string;
+    shortDescription: string;
+    description: string;
+    price: number;
+    category: mongoose.Types.ObjectId;
+    categorySlug: string;
+    media: { url: string; publicId: string; type: "image"; alt: string; order: number }[];
+    variants: ReturnType<typeof packVariants>;
+    isGlutenFree?: boolean;
+    isFeatured?: boolean;
+    isPublished: boolean;
+    inStock: boolean;
+    stock: number;
+    tags: string[];
+  }> = [];
+
+  for (const flavor of BAGEL_FLAVORS) {
+    const slug = slugify(flavor);
+    const flavorLabel = flavor.replace(/ Bagel$/i, "").toLowerCase();
+    menuProducts.push({
+      name: flavor,
+      slug,
+      shortDescription: `Sourdough ${flavorLabel} bagel — single, 6-pack, or dozen`,
+      description: `Hand-rolled sourdough ${flavorLabel} bagel, boiled and baked fresh. Available as a single bagel, 6-pack, or full dozen.`,
       price: 350,
-      category: categoryMap["bagels"],
+      category: categoryMap.bagels,
       categorySlug: "bagels",
+      media: [
+        {
+          url: productImagePath("bagels", slug),
+          publicId: `local/bagels/${slug}`,
+          type: "image",
+          alt: flavor,
+          order: 0,
+        },
+      ],
+      variants: packVariants(BAGEL_PACK_VARIANTS),
+      isFeatured: flavor === "Everything",
       isPublished: true,
       inStock: true,
-      stock: 20,
-      tags: ["bagel", "everything"],
-    },
-    {
-      name: "Classic Chocolate Chip Cookie",
-      slug: "sample-chocolate-chip-cookie",
-      shortDescription: "Thick, chewy, loaded with chocolate chips",
-      description: "Our signature chocolate chip cookie — crispy edges, soft centre, and plenty of premium chocolate chips.",
-      price: 300,
-      category: categoryMap["cookies"],
+      stock: 50,
+      tags: ["bagel", slug],
+    });
+  }
+
+  for (const flavor of COOKIE_FLAVORS) {
+    const slug = slugify(flavor);
+    menuProducts.push({
+      name: flavor,
+      slug,
+      shortDescription: `${flavor} — single, 6-pack, or dozen`,
+      description: `Fresh-baked ${flavor.toLowerCase()}, made in small batches. Available as a single cookie, 6-pack, or full dozen.`,
+      price: 350,
+      category: categoryMap.cookies,
       categorySlug: "cookies",
+      media: [
+        {
+          url: productImagePath("cookies", slug),
+          publicId: `local/cookies/${slug}`,
+          type: "image",
+          alt: flavor,
+          order: 0,
+        },
+      ],
+      variants: packVariants(COOKIE_PACK_VARIANTS),
+      isFeatured: flavor === "Original Favourite Chocolate Chip Cookie",
       isPublished: true,
       inStock: true,
-      stock: 30,
-      isFeatured: true,
-      tags: ["cookie", "chocolate-chip"],
-    },
-    {
-      name: "Gluten-Free Double Chocolate Cookie",
-      slug: "sample-gf-double-chocolate",
-      shortDescription: "Rich double chocolate, gluten-free",
-      description: "Decadent gluten-free cookie made with rich cocoa and chocolate chunks.",
-      price: 450,
-      category: categoryMap["gluten-free"],
-      categorySlug: "gluten-free",
-      isGlutenFree: true,
-      isPublished: true,
-      inStock: true,
-      stock: 15,
-      tags: ["gluten-free", "cookie"],
-    },
-    {
-      name: "Sourdough English Muffin (6-pack)",
-      slug: "sample-english-muffin-6pack",
-      shortDescription: "Six sourdough English muffins per pack",
-      description: "Perfect nooks and crannies for toasting. Made with our signature sourdough starter.",
-      price: 900,
-      category: categoryMap["english-muffins"],
-      categorySlug: "english-muffins",
-      isPublished: true,
-      inStock: true,
-      stock: 10,
-      tags: ["english-muffin"],
-    },
-    {
-      name: "Artisan Sourdough Loaf (By Request)",
-      slug: "sample-sourdough-loaf",
-      shortDescription: "Available by request only",
-      description: "Custom artisan sourdough loaves available by request. Contact us or add a note at checkout.",
-      price: 1200,
-      category: categoryMap["sourdough-bread"],
-      categorySlug: "sourdough-bread",
-      isRequestOnly: true,
-      isPublished: true,
-      inStock: true,
-      stock: 0,
-      tags: ["sourdough", "request-only"],
-    },
-  ];
-
-  for (const prod of sampleProducts) {
-    const exists = await Product.findOne({ slug: prod.slug });
-    if (!exists) {
-      await Product.create(prod);
-      await ProductCategory.findByIdAndUpdate(prod.category, { $inc: { productCount: 1 } });
-      console.log(`Product created: ${prod.name}`);
-    } else {
-      await Product.findOneAndUpdate({ slug: prod.slug }, { $set: prod });
-      console.log(`Product updated: ${prod.name}`);
-    }
+      stock: 50,
+      tags: ["cookie", slug],
+    });
   }
 
-  // Promotion rules
-  const promotions = [
-    { name: "Buy 6 Get 1 Free", buyQuantity: 6, freeQuantity: 1, order: 1 },
-    { name: "Buy 12 Get 2 Free", buyQuantity: 12, freeQuantity: 2, order: 2 },
-    { name: "Buy 24 Get 4 Free", buyQuantity: 24, freeQuantity: 4, order: 3 },
-  ];
+  menuProducts.push({
+    name: "Bagel + Cookie Combo",
+    slug: "bagel-cookie-combo",
+    shortDescription: "1 bagel and 1 cookie — $6.00",
+    description:
+      "Pick your favourite bagel and cookie together at a special combo price. Add to cart and choose your flavours in the shop.",
+    price: 600,
+    category: categoryMap["combo-deals"],
+    categorySlug: "combo-deals",
+    media: [
+      {
+        url: productImagePath("combo-deals", "bagel-cookie-combo"),
+        publicId: "local/combo-deals/bagel-cookie-combo",
+        type: "image",
+        alt: "Bagel and cookie combo",
+        order: 0,
+      },
+    ],
+    variants: [],
+    isFeatured: true,
+    isPublished: true,
+    inStock: true,
+    stock: 50,
+    tags: ["combo", "deal"],
+  });
 
-  for (const promo of promotions) {
-    const exists = await PromotionRule.findOne({ name: promo.name });
-    if (!exists) {
-      await PromotionRule.create({ ...promo, isActive: true, stackable: false });
-      console.log(`Promotion created: ${promo.name}`);
-    }
+  const menuSlugs = menuProducts.map((p) => p.slug);
+
+  await Product.updateMany(
+    { slug: { $nin: menuSlugs } },
+    { $set: { isPublished: false } }
+  );
+
+  for (const prod of menuProducts) {
+    await Product.findOneAndUpdate(
+      { slug: prod.slug },
+      { $set: prod },
+      { upsert: true, new: true }
+    );
+    console.log(`Product synced: ${prod.name}`);
   }
 
-  // FAQs
+  for (const cat of MENU_CATEGORIES) {
+    const count = await Product.countDocuments({
+      categorySlug: cat.slug,
+      isPublished: true,
+    });
+    await ProductCategory.findOneAndUpdate(
+      { slug: cat.slug },
+      { $set: { productCount: count } }
+    );
+  }
+
+  await PromotionRule.updateMany({}, { $set: { isActive: false } });
+  console.log("Legacy promotions deactivated (pricing is in pack variants)");
+
   const faqs = [
     {
       question: "How does pickup work?",
-      answer: "[PLACEHOLDER] Configure pickup instructions, address, and time windows from Admin → Settings. Customers will select a preferred date and time during checkout.",
+      answer:
+        "Configure pickup instructions, address, and time windows from Admin → Settings. Customers select a preferred date and time during checkout.",
       category: "pickup",
       order: 1,
     },
     {
       question: "Do you offer local delivery?",
-      answer: "[PLACEHOLDER] Configure delivery zones and fees from Admin → Delivery. Delivery availability depends on your postal code.",
+      answer:
+        "Configure delivery zones and fees from Admin → Delivery. Delivery availability depends on your postal code.",
       category: "delivery",
       order: 2,
     },
     {
-      question: "Do you have gluten-free options?",
-      answer: "Yes! We offer select gluten-free bakes. Look for the gluten-free badge on products in our shop. Please contact us about cross-contamination concerns.",
-      category: "dietary",
+      question: "What are your bagel and cookie prices?",
+      answer:
+        "Single bagels and cookies are $3.50 each. 6-packs are $18.00 and dozens are $30.00. Our Bagel + Cookie combo is $6.00.",
+      category: "products",
       order: 3,
     },
     {
-      question: "Can I request sourdough bread?",
-      answer: "Absolutely! Our artisan sourdough loaves are available by request. Use the contact form or note it in your order inquiry.",
+      question: "How do pack sizes work?",
+      answer:
+        "Each bagel and cookie flavour can be ordered as a single item, 6-pack, or full dozen. Choose your pack size when adding to cart.",
       category: "products",
       order: 4,
     },
     {
-      question: "How do the buy-more-get-free promotions work?",
-      answer: "When you buy 6 items you get 1 free, buy 12 get 2 free, or buy 24 get 4 free. Free items are calculated automatically in your cart before checkout.",
-      category: "promotions",
+      question: "How long does order preparation take?",
+      answer: "Set your preparation time and order cutoff notice in Admin → Settings.",
+      category: "orders",
       order: 5,
     },
     {
-      question: "How long does order preparation take?",
-      answer: "[PLACEHOLDER] Set your preparation time and order cutoff notice in Admin → Settings.",
-      category: "orders",
-      order: 6,
-    },
-    {
       question: "What about allergies?",
-      answer: "Please contact us directly about allergies and cross-contamination concerns. Our kitchen handles wheat, nuts, dairy, eggs, and other allergens.",
+      answer:
+        "Please contact us directly about allergies and cross-contamination concerns. Our kitchen handles wheat, nuts, dairy, eggs, and other allergens.",
       category: "allergies",
-      order: 7,
+      order: 6,
     },
   ];
 
   for (const faq of faqs) {
-    const exists = await FAQ.findOne({ question: faq.question });
-    if (!exists) {
-      await FAQ.create(faq);
-    }
+    await FAQ.findOneAndUpdate({ question: faq.question }, { $set: faq }, { upsert: true });
   }
   console.log("FAQs seeded");
 
-  // Testimonials — remove placeholders, seed real reviews
   await Testimonial.deleteMany({ isPlaceholder: true });
 
   const testimonials = [
@@ -266,7 +281,7 @@ async function seed() {
     {
       name: "Priya R.",
       content:
-        "Finally found gluten-free cookies that actually taste amazing. Dino's has been a game changer for our family — we order every month.",
+        "Finally found cookies that actually taste amazing. Dino's has been a game changer for our family — we order every month.",
       rating: 5,
       isPlaceholder: false,
       isPublished: true,
@@ -297,7 +312,6 @@ async function seed() {
   }
   console.log("Testimonials seeded");
 
-  // Site settings
   let settings = await SiteSettings.findOne();
   if (!settings) {
     settings = await SiteSettings.create({
@@ -318,9 +332,11 @@ Thank you for supporting our small, local bakery. We can't wait to share our bak
   }
 
   console.log("\n✅ Seed complete!");
+  console.log(`   ${BAGEL_FLAVORS.length} bagels, ${COOKIE_FLAVORS.length} cookies, 1 combo deal`);
   console.log(`\nAdmin login: ${adminEmail}`);
   console.log(`Admin password: ${adminPassword}`);
-  console.log("\n⚠️  Change the admin password after first login!");
+  console.log("\n📷 Add product photos to public/images/products/{category}/{slug}.jpg");
+  console.log("⚠️  Change the admin password after first login!");
 
   await mongoose.disconnect();
 }

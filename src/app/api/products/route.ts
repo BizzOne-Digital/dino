@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { Product } from "@/models/Product";
-import { ProductCategory } from "@/models/ProductCategory";
 import { getEffectivePrice, isProductOnSale } from "@/lib/pricing-helpers";
 
 export async function GET(request: Request) {
@@ -29,7 +28,6 @@ export async function GET(request: Request) {
 
     const [products, total] = await Promise.all([
       Product.find(filter)
-        .populate("category", "name slug")
         .sort(sortOption)
         .skip((page - 1) * limit)
         .limit(limit)
@@ -40,9 +38,7 @@ export async function GET(request: Request) {
     const serialized = products.map((p) => ({
       ...p,
       _id: p._id.toString(),
-      category: p.category
-        ? { ...p.category, _id: (p.category as { _id: { toString: () => string } })._id?.toString?.() }
-        : null,
+      category: p.category?.toString?.() ?? null,
       effectivePrice: getEffectivePrice(p as Parameters<typeof getEffectivePrice>[0]),
       onSale: isProductOnSale(p as Parameters<typeof isProductOnSale>[0]),
     }));

@@ -117,7 +117,7 @@ export function HomePage() {
           />
           <CategoryShowcase />
           <ShopSection initialSearch={searchQuery} />
-          <SpecialOffers promotions={siteData?.promotions} />
+          <SpecialOffers />
           <WhyDinos />
           <OurStory settings={settings} />
           <VideoSection
