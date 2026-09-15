@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Plus, Trash2 } from "lucide-react";
+import { slugify } from "@/lib/utils";
 import { AdminButton, inputClass, labelClass, selectClass } from "./admin-ui";
 
 interface Category {
@@ -83,6 +84,7 @@ export function ProductForm({ initial, onSubmit, submitLabel = "Save Product" }:
   const [imageUrl, setImageUrl] = useState("");
   const [tagsInput, setTagsInput] = useState((initial?.tags || []).join(", "));
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     fetch("/api/admin/categories")
@@ -111,8 +113,68 @@ export function ProductForm({ initial, onSubmit, submitLabel = "Save Product" }:
   function addImage() {
     if (!imageUrl.trim()) return;
     const publicId = imageUrl.split("/").pop()?.split(".")[0] || `img-${Date.now()}`;
-    update("media", [{ url: imageUrl.trim(), publicId, type: "image", order: 0 }]);
+    update("media", [
+      { url: imageUrl.trim(), publicId, type: "image", order: 0, alt: form.name },
+    ]);
     toast.success("Image added");
+  }
+
+  function fileToDataUrl(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function handleImageUpload(file: File) {
+    if (!form.categorySlug) {
+      toast.error("Select a category before uploading an image");
+      return;
+    }
+    if (!form.name.trim()) {
+      toast.error("Enter a product name before uploading an image");
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const productSlug = slugify(form.name);
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("categorySlug", form.categorySlug);
+      formData.append("slug", productSlug);
+
+      let res = await fetch("/api/admin/upload-local", { method: "POST", body: formData });
+
+      if (!res.ok) {
+        const dataUrl = await fileToDataUrl(file);
+        res = await fetch("/api/admin/upload", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ file: dataUrl, folder: `dino-products/${form.categorySlug}` }),
+        });
+      }
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Upload failed");
+
+      const mediaItem: Media = {
+        url: data.url,
+        publicId: data.publicId,
+        type: "image",
+        order: 0,
+        alt: form.name,
+      };
+      update("media", [mediaItem]);
+      setImageUrl(data.url);
+      toast.success("Image uploaded");
+    } catch {
+      toast.error("Image upload failed. Try pasting an image URL instead.");
+    } finally {
+      setUploading(false);
+    }
   }
 
   function addVariant() {
@@ -137,7 +199,16 @@ export function ProductForm({ initial, onSubmit, submitLabel = "Save Product" }:
     }
     setLoading(true);
     try {
-      await onSubmit({ ...form, tags: tagsInput.split(",").map((t) => t.trim()).filter(Boolean) });
+      let media = form.media;
+      if (!media.length && imageUrl.trim()) {
+        const publicId = imageUrl.split("/").pop()?.split(".")[0] || `img-${Date.now()}`;
+        media = [{ url: imageUrl.trim(), publicId, type: "image", order: 0, alt: form.name }];
+      }
+      await onSubmit({
+        ...form,
+        media,
+        tags: tagsInput.split(",").map((t) => t.trim()).filter(Boolean),
+      });
     } finally {
       setLoading(false);
     }
@@ -182,13 +253,40 @@ export function ProductForm({ initial, onSubmit, submitLabel = "Save Product" }:
       </div>
 
       <div className="border-t border-gray-100 pt-6">
-        <h3 className="font-semibold text-forest mb-4">Image</h3>
-        <div className="flex gap-2">
-          <input className={inputClass} placeholder="Image URL" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} />
-          <AdminButton type="button" variant="secondary" onClick={addImage}>Add</AdminButton>
+        <h3 className="font-semibold text-forest mb-4">Product Image</h3>
+        <p className="mb-3 text-sm text-charcoal/60">
+          Upload a photo or paste a URL. Saves under{" "}
+          <code className="text-xs">/images/products/[category]/</code> when uploaded locally.
+        </p>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/gif"
+            className="text-sm"
+            disabled={uploading}
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) handleImageUpload(file);
+              e.target.value = "";
+            }}
+          />
+          <span className="text-xs text-charcoal/50">{uploading ? "Uploading…" : "JPG, PNG, WebP"}</span>
         </div>
-        {form.media[0] && (
-          <img src={form.media[0].url} alt="" className="mt-3 w-24 h-24 object-cover rounded-lg border" />
+        <div className="mt-3 flex gap-2">
+          <input
+            className={inputClass}
+            placeholder="Or paste image URL (e.g. /images/products/bagels/plain-bagel.jpg)"
+            value={imageUrl}
+            onChange={(e) => setImageUrl(e.target.value)}
+          />
+          <AdminButton type="button" variant="secondary" onClick={addImage}>Use URL</AdminButton>
+        </div>
+        {(form.media[0] || imageUrl) && (
+          <img
+            src={form.media[0]?.url || imageUrl}
+            alt=""
+            className="mt-3 h-32 w-32 object-cover rounded-lg border"
+          />
         )}
       </div>
 

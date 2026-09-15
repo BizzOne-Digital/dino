@@ -80,8 +80,23 @@ export function HomePage() {
   const [loaded, setLoaded] = useState(false);
   const [siteData, setSiteData] = useState<SiteData | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [categories, setCategories] = useState<
+    Array<{
+      _id: string;
+      name: string;
+      slug: string;
+      description?: string;
+      image?: string;
+      startingPrice?: number;
+    }>
+  >([]);
 
   useEffect(() => {
+    fetch("/api/categories")
+      .then((r) => r.json())
+      .then((data) => setCategories(data.categories || []))
+      .catch(() => {});
+
     fetch("/api/site-data")
       .then((r) => r.json())
       .then((data) => {
@@ -115,7 +130,7 @@ export function HomePage() {
               "Local Delivery",
             ]}
           />
-          <CategoryShowcase />
+          <CategoryShowcase categories={categories} />
           <ShopSection initialSearch={searchQuery} />
           <SpecialOffers />
           <WhyDinos />

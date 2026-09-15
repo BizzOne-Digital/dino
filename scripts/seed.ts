@@ -62,6 +62,7 @@ async function seed() {
           description: cat.description,
           startingPrice: cat.startingPrice,
           order: cat.order,
+          image: cat.image,
           isActive: true,
           isRequestOnly: false,
         },

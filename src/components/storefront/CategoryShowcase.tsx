@@ -22,6 +22,7 @@ const DEFAULT_CATEGORIES: Category[] = [
     slug: "bagels",
     description: "12 sourdough flavours",
     startingPrice: 350,
+    image: "/images/categories/bagels.jpg",
   },
   {
     _id: "2",
@@ -29,6 +30,7 @@ const DEFAULT_CATEGORIES: Category[] = [
     slug: "cookies",
     description: "15 cookie flavours",
     startingPrice: 350,
+    image: "/images/categories/cookies.jpg",
   },
   {
     _id: "3",
@@ -36,6 +38,7 @@ const DEFAULT_CATEGORIES: Category[] = [
     slug: "combo-deals",
     description: "Bagel + cookie for $6",
     startingPrice: 600,
+    image: "/images/categories/combo-deals.jpg",
   },
 ];
 
@@ -51,9 +54,20 @@ interface CategoryShowcaseProps {
   categories?: Category[];
 }
 
+const FALLBACK_BY_SLUG = Object.fromEntries(DEFAULT_CATEGORIES.map((c) => [c.slug, c]));
+
 export function CategoryShowcase({ categories }: CategoryShowcaseProps) {
   const reducedMotion = useReducedMotion();
-  const items = (categories?.length ? categories.slice(0, 5) : DEFAULT_CATEGORIES).slice(0, 5);
+  const source = categories?.length ? categories.slice(0, 5) : DEFAULT_CATEGORIES;
+  const items = source.map((cat) => {
+    const fallback = FALLBACK_BY_SLUG[cat.slug];
+    return {
+      ...cat,
+      description: cat.description || fallback?.description,
+      image: cat.image || fallback?.image,
+      startingPrice: cat.startingPrice ?? fallback?.startingPrice,
+    };
+  });
 
   return (
     <section className="py-20 px-4 lg:px-6 relative overflow-hidden section-gradient-warm">
@@ -72,7 +86,13 @@ export function CategoryShowcase({ categories }: CategoryShowcaseProps) {
           </p>
         </motion.div>
 
-        <div className="-mx-4 flex gap-4 overflow-x-auto px-4 pb-2 scrollbar-hide snap-x snap-mandatory sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:pb-0 lg:grid-cols-5">
+        <div
+          className={`-mx-4 flex gap-4 overflow-x-auto px-4 pb-2 scrollbar-hide snap-x snap-mandatory sm:mx-0 sm:grid sm:overflow-visible sm:pb-0 sm:gap-6 ${
+            items.length <= 3
+              ? "sm:grid-cols-2 lg:grid-cols-3 lg:max-w-5xl lg:mx-auto"
+              : "sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"
+          }`}
+        >
           {items.map((cat, i) => (
             <motion.a
               key={cat._id}
@@ -85,16 +105,18 @@ export function CategoryShowcase({ categories }: CategoryShowcaseProps) {
               whileHover={reducedMotion ? {} : { y: -8, rotateX: 5, rotateY: -5 }}
               style={{ transformStyle: "preserve-3d" }}
             >
-              <div className={`absolute inset-0 bg-gradient-to-br ${GRADIENTS[i % GRADIENTS.length]}`} />
-              {cat.image && (
+              {cat.image ? (
                 <Image
                   src={cat.image}
                   alt={cat.name}
                   fill
-                  className="object-cover mix-blend-overlay opacity-60 transition-transform duration-500 group-hover:scale-110"
+                  sizes="(max-width: 640px) 72vw, 33vw"
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
                 />
+              ) : (
+                <div className={`absolute inset-0 bg-gradient-to-br ${GRADIENTS[i % GRADIENTS.length]}`} />
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-charcoal/20 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-charcoal/85 via-charcoal/35 to-charcoal/10" />
               <div className="absolute inset-0 flex flex-col justify-end p-5 text-cream">
                 <div className="flex items-start justify-between">
                   <div>

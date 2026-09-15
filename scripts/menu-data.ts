@@ -8,27 +8,36 @@ export function slugify(text: string): string {
     .replace(/(^-|-$)/g, "");
 }
 
+export const CATEGORY_IMAGE_PATHS: Record<string, string> = {
+  bagels: "/images/categories/bagels.jpg",
+  cookies: "/images/categories/cookies.jpg",
+  "combo-deals": "/images/categories/combo-deals.jpg",
+};
+
 export const MENU_CATEGORIES = [
   {
     name: "Bagels",
     slug: "bagels",
-    description: "Hand-rolled sourdough bagels, boiled and baked fresh daily.",
+    description: "12 sourdough flavours",
     startingPrice: 350,
     order: 1,
+    image: CATEGORY_IMAGE_PATHS.bagels,
   },
   {
     name: "Cookies",
     slug: "cookies",
-    description: "Thick, chewy cookies baked in small batches with premium ingredients.",
+    description: "15 cookie flavours",
     startingPrice: 350,
     order: 2,
+    image: CATEGORY_IMAGE_PATHS.cookies,
   },
   {
     name: "Combo Deals",
     slug: "combo-deals",
-    description: "Mix and match your favourites at a special price.",
+    description: "Bagel + cookie for $6",
     startingPrice: 600,
     order: 3,
+    image: CATEGORY_IMAGE_PATHS["combo-deals"],
   },
 ] as const;
 
@@ -88,7 +97,7 @@ export const COOKIE_IMAGE_IDS: Record<string, string> = {
   "double-chocolate-chip": "890f62c6-c528-48ca-aff8-6376a31b5751",
   nutella: "6ba06df6-2693-4d26-88dc-157933ab60d2",
   "smarties-cookie": "3290c520-7c48-4988-99f4-eec5d0dfb3a3",
-  "peanut-butter-chocolate-chip": "8cecee4a-95fe-4a9b-9193-bc3eda1a52f8",
+  "peanut-butter-chocolate-chip": "4105434b-1e2d-45fc-b6f7-fd2983ef9c8e",
   "cookies-and-cream-cookie": "8cecee4a-95fe-4a9b-9193-bc3eda1a52f8",
 };
 
