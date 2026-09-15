@@ -39,6 +39,10 @@ export async function GET(request: Request) {
       ...p,
       _id: p._id.toString(),
       category: p.category?.toString?.() ?? null,
+      variants: (p.variants || []).map((v) => ({
+        ...v,
+        _id: v._id?.toString(),
+      })),
       effectivePrice: getEffectivePrice(p as Parameters<typeof getEffectivePrice>[0]),
       onSale: isProductOnSale(p as Parameters<typeof isProductOnSale>[0]),
     }));

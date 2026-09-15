@@ -58,6 +58,68 @@ interface ShopSectionProps {
   initialCategory?: string;
 }
 
+function variantId(product: Product, variant: ProductVariant, index: number) {
+  return variant._id?.toString() ?? `${product._id}-variant-${index}`;
+}
+
+function findVariant(product: Product, id?: string) {
+  if (!id) return undefined;
+  return product.variants.find((v, i) => variantId(product, v, i) === id);
+}
+
+function defaultVariantId(product: Product) {
+  const first = product.variants[0];
+  if (!first) return undefined;
+  return variantId(product, first, 0);
+}
+
+function PackSizeSelector({
+  product,
+  selectedId,
+  onSelect,
+  compact,
+}: {
+  product: Product;
+  selectedId?: string;
+  onSelect: (id: string) => void;
+  compact?: boolean;
+}) {
+  if (!product.variants.length) return null;
+
+  return (
+    <div className={compact ? "mt-2" : "mt-4"}>
+      <p className="mb-1.5 text-[10px] font-bold uppercase tracking-wider text-charcoal/50 sm:text-xs">
+        Pack size
+      </p>
+      <div className="flex flex-col gap-1.5">
+        {product.variants.map((v, i) => {
+          const id = variantId(product, v, i);
+          const selected = selectedId === id;
+          return (
+            <button
+              key={id}
+              type="button"
+              onClick={() => onSelect(id)}
+              disabled={!v.inStock}
+              className={cn(
+                "flex items-center justify-between rounded-xl border px-3 py-2 text-left transition-colors",
+                compact ? "text-xs" : "text-sm",
+                selected
+                  ? "border-forest bg-forest/5 ring-1 ring-forest"
+                  : "border-beige hover:border-dino",
+                !v.inStock && "opacity-50"
+              )}
+            >
+              <span className="font-medium text-forest">{v.name}</span>
+              <span className="font-semibold text-forest">{formatCurrency(v.price)}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export function ShopSection({ initialSearch = "", initialCategory = "" }: ShopSectionProps) {
   const reducedMotion = useReducedMotion();
   const { addItem } = useCart();
@@ -72,7 +134,15 @@ export function ShopSection({ initialSearch = "", initialCategory = "" }: ShopSe
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [quickView, setQuickView] = useState<Product | null>(null);
   const [selectedVariant, setSelectedVariant] = useState<string | undefined>();
+  const [variantByProduct, setVariantByProduct] = useState<Record<string, string>>({});
   const [quantity, setQuantity] = useState(1);
+
+  const getProductVariantId = (product: Product) =>
+    variantByProduct[product._id] ?? defaultVariantId(product);
+
+  const setProductVariantId = (productId: string, id: string) => {
+    setVariantByProduct((prev) => ({ ...prev, [productId]: id }));
+  };
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
@@ -108,16 +178,18 @@ export function ShopSection({ initialSearch = "", initialCategory = "" }: ShopSe
 
   const openQuickView = (product: Product) => {
     setQuickView(product);
-    setSelectedVariant(product.variants[0]?._id?.toString());
+    setSelectedVariant(getProductVariantId(product));
     setQuantity(1);
   };
 
-  const handleAddToCart = (product: Product, qty = quantity, variantId?: string) => {
-    const variant = product.variants.find((v) => v._id?.toString() === variantId);
+  const handleAddToCart = (product: Product, qty = quantity, variantIdParam?: string) => {
+    const resolvedVariantId =
+      variantIdParam ?? (product.variants.length ? getProductVariantId(product) : undefined);
+    const variant = findVariant(product, resolvedVariantId);
     const price = variant?.price ?? product.effectivePrice;
     addItem({
       productId: product._id,
-      variantId: variantId,
+      variantId: resolvedVariantId,
       name: variant ? `${product.name} (${variant.name})` : product.name,
       price,
       compareAtPrice: product.compareAtPrice,
@@ -289,7 +361,7 @@ export function ShopSection({ initialSearch = "", initialCategory = "" }: ShopSe
                       Quick View
                     </button>
                     <button
-                      onClick={() => handleAddToCart(product, 1)}
+                      onClick={() => handleAddToCart(product, 1, getProductVariantId(product))}
                       disabled={!product.inStock}
                       className="flex-1 rounded-full bg-forest py-2 text-sm font-medium text-cream hover:bg-dino disabled:opacity-50"
                     >
@@ -304,7 +376,12 @@ export function ShopSection({ initialSearch = "", initialCategory = "" }: ShopSe
                   )}
                   <div className="mt-3 flex items-center justify-between gap-2">
                     <div className="min-w-0">
-                      <span className="font-bold text-forest">{formatCurrency(product.effectivePrice)}</span>
+                      <span className="font-bold text-forest">
+                        {formatCurrency(
+                          findVariant(product, getProductVariantId(product))?.price ??
+                            product.effectivePrice
+                        )}
+                      </span>
                       {product.onSale && product.compareAtPrice && (
                         <span className="ml-2 text-sm text-charcoal/40 line-through">
                           {formatCurrency(product.compareAtPrice)}
@@ -315,6 +392,12 @@ export function ShopSection({ initialSearch = "", initialCategory = "" }: ShopSe
                       <span className="shrink-0 text-xs font-medium text-caramel">Out of Stock</span>
                     )}
                   </div>
+                  <PackSizeSelector
+                    product={product}
+                    selectedId={getProductVariantId(product)}
+                    onSelect={(id) => setProductVariantId(product._id, id)}
+                    compact
+                  />
                   {/* Mobile add-to-cart — always visible */}
                   <div className="mt-3 flex gap-2 sm:hidden">
                     <button
@@ -324,7 +407,7 @@ export function ShopSection({ initialSearch = "", initialCategory = "" }: ShopSe
                       Quick View
                     </button>
                     <button
-                      onClick={() => handleAddToCart(product, 1)}
+                      onClick={() => handleAddToCart(product, 1, getProductVariantId(product))}
                       disabled={!product.inStock}
                       className="flex-1 rounded-full bg-forest py-2.5 text-xs font-semibold text-cream disabled:opacity-50"
                     >
@@ -376,8 +459,7 @@ export function ShopSection({ initialSearch = "", initialCategory = "" }: ShopSe
                 <div className="mt-4 flex items-center gap-3">
                   <span className="text-2xl font-bold text-forest">
                     {formatCurrency(
-                      quickView.variants.find((v) => v._id?.toString() === selectedVariant)?.price ??
-                        quickView.effectivePrice
+                      findVariant(quickView, selectedVariant)?.price ?? quickView.effectivePrice
                     )}
                   </span>
                   {quickView.onSale && quickView.compareAtPrice && (
@@ -386,29 +468,14 @@ export function ShopSection({ initialSearch = "", initialCategory = "" }: ShopSe
                     </span>
                   )}
                 </div>
-                {quickView.variants.length > 0 && (
-                  <div className="mt-4">
-                    <p className="text-sm font-medium text-charcoal/60 mb-2">Options</p>
-                    <div className="flex flex-wrap gap-2">
-                      {quickView.variants.map((v) => (
-                        <button
-                          key={v._id?.toString()}
-                          onClick={() => setSelectedVariant(v._id?.toString())}
-                          disabled={!v.inStock}
-                          className={cn(
-                            "rounded-full px-4 py-2 text-sm font-medium border transition-colors",
-                            selectedVariant === v._id?.toString()
-                              ? "border-forest bg-forest text-cream"
-                              : "border-beige hover:border-dino",
-                            !v.inStock && "opacity-50"
-                          )}
-                        >
-                          {v.name}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                <PackSizeSelector
+                  product={quickView}
+                  selectedId={selectedVariant}
+                  onSelect={(id) => {
+                    setSelectedVariant(id);
+                    setProductVariantId(quickView._id, id);
+                  }}
+                />
                 <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center">
                   <div className="flex items-center rounded-full border border-beige">
                     <button
