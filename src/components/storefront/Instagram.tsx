@@ -9,13 +9,13 @@ interface InstagramProps {
   settings: SiteSettingsData;
 }
 
-const PLACEHOLDER_IMAGES = [
-  "/images/logo.jpg",
-  "/images/logo.jpg",
-  "/images/logo.jpg",
-  "/images/logo.jpg",
-  "/images/logo.jpg",
-  "/images/logo.jpg",
+const KITCHEN_GALLERY = [
+  { src: "/images/instagram/01.jpg", alt: "Mixing sourdough in the kitchen" },
+  { src: "/images/instagram/02.jpg", alt: "Hand-shaping fresh bagels" },
+  { src: "/images/instagram/03.jpg", alt: "Boiling bagels before baking" },
+  { src: "/images/instagram/04.jpg", alt: "Scooping chocolate chip cookie dough" },
+  { src: "/images/instagram/05.jpg", alt: "Fresh bagels and cookies from the oven" },
+  { src: "/images/instagram/06.jpg", alt: "Packing bagels and cookies for pickup" },
 ];
 
 export function Instagram({ settings }: InstagramProps) {
@@ -44,9 +44,9 @@ export function Instagram({ settings }: InstagramProps) {
         </motion.div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-          {PLACEHOLDER_IMAGES.map((src, i) => (
+          {KITCHEN_GALLERY.map((item, i) => (
             <motion.a
-              key={i}
+              key={item.src}
               href={instagramUrl || "https://instagram.com"}
               target="_blank"
               rel="noopener noreferrer"
@@ -58,9 +58,10 @@ export function Instagram({ settings }: InstagramProps) {
               whileHover={reducedMotion ? {} : { scale: 1.03 }}
             >
               <Image
-                src={src}
-                alt={`Instagram post ${i + 1}`}
+                src={item.src}
+                alt={item.alt}
                 fill
+                sizes="(max-width: 768px) 50vw, 33vw"
                 className="object-cover transition-transform duration-500 group-hover:scale-110"
               />
               <div className="absolute inset-0 bg-forest/0 group-hover:bg-forest/40 transition-colors flex items-center justify-center">

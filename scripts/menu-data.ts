@@ -49,20 +49,21 @@ export const LEGACY_CATEGORY_SLUGS = [
   "gift-boxes",
 ];
 
-export const BAGEL_FLAVORS = [
-  "Plain Bagel",
-  "Poppy Seed",
-  "Cheese & Jalapeño",
-  "Everything",
-  "Onion",
-  "Blueberry",
-  "Cinnamon Raisin",
-  "Pumpernickel",
-  "Pesto & Sun-Dried Tomato",
-  "Italian & Garlic",
-  "Bacon, Cheese & Maple Syrup",
-  "Pumpkin Spice",
-];
+/** Menu bagels — slug must match file in public/images/products/bagels/{slug}.jpg */
+export const BAGEL_PRODUCTS = [
+  { name: "Cheese & Jalapeño Bagel", slug: "cheese-and-jalapeno" },
+  { name: "Onion Bagel", slug: "onion" },
+  { name: "Poppy Seed Bagel", slug: "poppy-seed" },
+  { name: "Pumpernickel Bagel", slug: "pumpernickel" },
+  { name: "Blueberry Bagel", slug: "blueberry" },
+  { name: "Pesto & Sun-Dried Tomato Bagel", slug: "pesto-and-sun-dried-tomato" },
+  { name: "Bacon, Cheese & Maple Syrup Bagel", slug: "bacon-cheese-and-maple-syrup" },
+  { name: "Cinnamon Raisin Bagel", slug: "cinnamon-raisin" },
+  { name: "Italian & Garlic Bagel", slug: "italian-and-garlic" },
+  { name: "Everything Bagel", slug: "everything" },
+  { name: "Plain Bagel", slug: "plain-bagel" },
+  { name: "Pumpkin Spice Bagel", slug: "pumpkin-spice" },
+] as const;
 
 export const COOKIE_FLAVORS = [
   "Original Favourite Chocolate Chip Cookie",

@@ -76,6 +76,9 @@ const DEFAULT_SETTINGS: SiteSettingsData = {
   footerText: "© Dino's Cookies & Bagels. Handcrafted with love.",
 };
 
+const HOMEPAGE_VIDEO_URL = "/dinos-cookies-bagels-cinematic-4k.mp4";
+const HOMEPAGE_VIDEO_POSTER = "/images/our-story.jpg";
+
 export function HomePage() {
   const [loaded, setLoaded] = useState(false);
   const [siteData, setSiteData] = useState<SiteData | null>(null);
@@ -136,8 +139,8 @@ export function HomePage() {
           <WhyDinos />
           <OurStory settings={settings} />
           <VideoSection
-            videoUrl={siteData?.settings?.homepageVideo?.url}
-            posterUrl={siteData?.settings?.homepageVideo?.poster}
+            videoUrl={siteData?.settings?.homepageVideo?.url || HOMEPAGE_VIDEO_URL}
+            posterUrl={siteData?.settings?.homepageVideo?.poster || HOMEPAGE_VIDEO_POSTER}
           />
           <PickupDelivery settings={settings} />
           <Reviews testimonials={siteData?.testimonials} />

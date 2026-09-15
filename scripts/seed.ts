@@ -13,7 +13,7 @@ import {
   slugify,
   MENU_CATEGORIES,
   LEGACY_CATEGORY_SLUGS,
-  BAGEL_FLAVORS,
+  BAGEL_PRODUCTS,
   COOKIE_FLAVORS,
   BAGEL_PACK_VARIANTS,
   COOKIE_PACK_VARIANTS,
@@ -96,32 +96,31 @@ async function seed() {
     tags: string[];
   }> = [];
 
-  for (const flavor of BAGEL_FLAVORS) {
-    const slug = slugify(flavor);
-    const flavorLabel = flavor.replace(/ Bagel$/i, "").toLowerCase();
+  for (const bagel of BAGEL_PRODUCTS) {
+    const flavorLabel = bagel.name.replace(/ Bagel$/i, "").toLowerCase();
     menuProducts.push({
-      name: flavor,
-      slug,
-      shortDescription: `Sourdough ${flavorLabel} bagel — single, 6-pack, or dozen`,
+      name: bagel.name,
+      slug: bagel.slug,
+      shortDescription: `Sourdough ${flavorLabel} — single, 6-pack, or dozen`,
       description: `Hand-rolled sourdough ${flavorLabel} bagel, boiled and baked fresh. Available as a single bagel, 6-pack, or full dozen.`,
       price: 350,
       category: categoryMap.bagels,
       categorySlug: "bagels",
       media: [
         {
-          url: productImagePath("bagels", slug),
-          publicId: `local/bagels/${slug}`,
+          url: productImagePath("bagels", bagel.slug),
+          publicId: `local/bagels/${bagel.slug}`,
           type: "image",
-          alt: flavor,
+          alt: bagel.name,
           order: 0,
         },
       ],
       variants: packVariants(BAGEL_PACK_VARIANTS),
-      isFeatured: flavor === "Everything",
+      isFeatured: bagel.slug === "everything",
       isPublished: true,
       inStock: true,
       stock: 50,
-      tags: ["bagel", slug],
+      tags: ["bagel", bagel.slug],
     });
   }
 
@@ -313,14 +312,17 @@ async function seed() {
   }
   console.log("Testimonials seeded");
 
-  let settings = await SiteSettings.findOne();
-  if (!settings) {
-    settings = await SiteSettings.create({
-      story: `At Dino's Cookies & Bagels, we believe in the simple joy of freshly baked goods made with care. Every bagel is hand-rolled, every cookie is mixed in small batches, and every ingredient is chosen with intention.
+  const defaultStory = `At Dino's Cookies & Bagels, we believe in the simple joy of freshly baked goods made with care. Every bagel is hand-rolled, every cookie is mixed in small batches, and every ingredient is chosen with intention.
 
 We use organic flour, locally sourced ingredients where possible, and our own sourdough starter that has been nurtured over time. Whether you're grabbing a dozen bagels for the family or treating yourself to a warm chocolate chip cookie, we bake everything with the same love we'd serve our own.
 
-Thank you for supporting our small, local bakery. We can't wait to share our bakes with you.`,
+Thank you for supporting our small, local bakery. We can't wait to share our bakes with you.`;
+
+  let settings = await SiteSettings.findOne();
+  if (!settings) {
+    settings = await SiteSettings.create({
+      story: defaultStory,
+      heroImage: "/images/our-story.jpg",
       pickup: {
         address: "[Configure your pickup address in Admin → Settings]",
         instructions: "[Add pickup instructions for customers]",
@@ -330,10 +332,25 @@ Thank you for supporting our small, local bakery. We can't wait to share our bak
       },
     });
     console.log("Site settings created");
+  } else {
+    await SiteSettings.findOneAndUpdate(
+      { _id: settings._id },
+      {
+        $set: {
+          heroImage: "/images/our-story.jpg",
+          homepageVideo: {
+            url: "/dinos-cookies-bagels-cinematic-4k.mp4",
+            poster: "/images/our-story.jpg",
+            publicId: "local/dinos-cookies-bagels-cinematic-4k",
+          },
+        },
+      }
+    );
+    console.log("Site settings: Our Story image & homepage video updated");
   }
 
   console.log("\n✅ Seed complete!");
-  console.log(`   ${BAGEL_FLAVORS.length} bagels, ${COOKIE_FLAVORS.length} cookies, 1 combo deal`);
+  console.log(`   ${BAGEL_PRODUCTS.length} bagels, ${COOKIE_FLAVORS.length} cookies, 1 combo deal`);
   console.log(`\nAdmin login: ${adminEmail}`);
   console.log(`Admin password: ${adminPassword}`);
   console.log("\n📷 Add product photos to public/images/products/{category}/{slug}.jpg");

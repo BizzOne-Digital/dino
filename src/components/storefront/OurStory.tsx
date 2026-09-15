@@ -23,7 +23,7 @@ export function OurStory({ settings }: OurStoryProps) {
           >
             <div className="relative overflow-hidden rounded-3xl shadow-2xl">
               <Image
-                src={settings.heroImage || "/images/logo.jpg"}
+                src={settings.heroImage || "/images/our-story.jpg"}
                 alt="Dino's baking story"
                 width={600}
                 height={500}

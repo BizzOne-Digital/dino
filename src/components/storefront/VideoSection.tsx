@@ -47,6 +47,8 @@ export function VideoSection({
                   src={videoUrl}
                   controls
                   autoPlay
+                  playsInline
+                  preload="metadata"
                   className="h-full w-full object-cover"
                   poster={posterUrl}
                 />

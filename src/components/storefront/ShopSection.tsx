@@ -82,7 +82,7 @@ export function ShopSection({ initialSearch = "", initialCategory = "" }: ShopSe
     if (glutenFree) params.set("glutenFree", "true");
     if (inStockOnly) params.set("inStock", "true");
     params.set("sort", sort);
-    params.set("limit", "24");
+    params.set("limit", "60");
 
     try {
       const res = await fetch(`/api/products?${params}`);
