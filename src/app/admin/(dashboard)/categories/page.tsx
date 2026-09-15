@@ -18,12 +18,13 @@ interface Category {
   name: string;
   slug: string;
   description: string;
+  image?: string;
   order: number;
   isActive: boolean;
   productCount: number;
 }
 
-const emptyForm = { name: "", description: "", order: 0, isActive: true };
+const emptyForm = { name: "", description: "", image: "", order: 0, isActive: true };
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -43,7 +44,13 @@ export default function CategoriesPage() {
   useEffect(() => { fetchCategories(); }, []);
 
   function startEdit(cat: Category) {
-    setForm({ name: cat.name, description: cat.description, order: cat.order, isActive: cat.isActive });
+    setForm({
+      name: cat.name,
+      description: cat.description,
+      image: cat.image || "",
+      order: cat.order,
+      isActive: cat.isActive,
+    });
     setEditingId(cat._id);
     setShowForm(true);
   }
@@ -114,6 +121,15 @@ export default function CategoriesPage() {
               <div className="md:col-span-2">
                 <label className={labelClass}>Description</label>
                 <textarea className={inputClass} rows={2} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+              </div>
+              <div className="md:col-span-2">
+                <label className={labelClass}>Category Image URL</label>
+                <input
+                  className={inputClass}
+                  placeholder="/images/categories/bagels.jpg"
+                  value={form.image}
+                  onChange={(e) => setForm({ ...form, image: e.target.value })}
+                />
               </div>
               <label className="flex items-center gap-2 text-sm">
                 <input type="checkbox" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} />
