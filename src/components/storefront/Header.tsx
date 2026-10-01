@@ -6,7 +6,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Search, ShoppingBag, Menu, X } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import type { SiteSettingsData } from "@/types";
+<<<<<<< HEAD
 import { cn, phoneToTelHref } from "@/lib/utils";
+=======
+import { cn } from "@/lib/utils";
+>>>>>>> 7fc58c974eb6e57a1188451228042ab63de29fff
 
 const NAV_LINKS = [
   { label: "Home", href: "#home" },
@@ -104,6 +108,7 @@ export function Header({ settings, onSearch }: HeaderProps) {
             )}
           </button>
 
+<<<<<<< HEAD
           {settings.phone && (
             <a
               href={phoneToTelHref(settings.phone)}
@@ -113,6 +118,8 @@ export function Header({ settings, onSearch }: HeaderProps) {
             </a>
           )}
 
+=======
+>>>>>>> 7fc58c974eb6e57a1188451228042ab63de29fff
           <a
             href="#shop"
             className="hidden rounded-full bg-gradient-to-r from-forest to-dino px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-cream shadow-md shadow-forest/25 transition-all hover:shadow-lg hover:shadow-dino/30 sm:inline-block"
@@ -177,6 +184,7 @@ export function Header({ settings, onSearch }: HeaderProps) {
                   {link.label}
                 </a>
               ))}
+<<<<<<< HEAD
               {settings.phone && (
                 <a
                   href={phoneToTelHref(settings.phone)}
@@ -186,6 +194,8 @@ export function Header({ settings, onSearch }: HeaderProps) {
                   Call {settings.phone}
                 </a>
               )}
+=======
+>>>>>>> 7fc58c974eb6e57a1188451228042ab63de29fff
               <a
                 href="#shop"
                 onClick={() => setMobileOpen(false)}

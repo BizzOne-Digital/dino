@@ -49,7 +49,11 @@ const SiteSettingsSchema = new Schema<ISiteSettings>(
     businessName: { type: String, default: "Dino's Cookies & Bagels" },
     logo: { type: String, default: "/images/logo.jpg" },
     email: { type: String, default: "sales@dinoscookiesandbagels.ca" },
+<<<<<<< HEAD
     phone: { type: String, default: "647-515-DINO" },
+=======
+    phone: { type: String, default: "905-832-3272" },
+>>>>>>> 7fc58c974eb6e57a1188451228042ab63de29fff
     socialLinks: {
       facebook: { type: String, default: "" },
       instagram: { type: String, default: "" },

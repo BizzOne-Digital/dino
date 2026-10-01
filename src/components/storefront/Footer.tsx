@@ -3,8 +3,12 @@
 import { useState } from "react";
 import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
+<<<<<<< HEAD
 import { Camera as InstagramIcon, Users as FacebookIcon, Mail, Phone, Loader2 } from "lucide-react";
 import { phoneToTelHref } from "@/lib/utils";
+=======
+import { Camera as InstagramIcon, Users as FacebookIcon, Mail, Loader2 } from "lucide-react";
+>>>>>>> 7fc58c974eb6e57a1188451228042ab63de29fff
 import { toast } from "sonner";
 import type { SiteSettingsData } from "@/types";
 
@@ -74,6 +78,7 @@ export function Footer({ settings }: FooterProps) {
               {settings.footerText ||
                 "Wildly fresh, naturally baked cookies and bagels made with organic ingredients in the GTA."}
             </p>
+<<<<<<< HEAD
             {settings.phone && (
               <a
                 href={phoneToTelHref(settings.phone)}
@@ -83,6 +88,8 @@ export function Footer({ settings }: FooterProps) {
                 {settings.phone}
               </a>
             )}
+=======
+>>>>>>> 7fc58c974eb6e57a1188451228042ab63de29fff
             <div className="mt-4 flex gap-3">
               {settings.socialLinks?.instagram && (
                 <a

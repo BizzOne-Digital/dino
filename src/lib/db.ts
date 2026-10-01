@@ -8,6 +8,10 @@ interface MongooseCache {
 }
 
 declare global {
+<<<<<<< HEAD
+=======
+  // eslint-disable-next-line no-var
+>>>>>>> 7fc58c974eb6e57a1188451228042ab63de29fff
   var mongooseCache: MongooseCache | undefined;
 }
 

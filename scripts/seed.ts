@@ -346,10 +346,13 @@ Thank you for supporting our small, local bakery. We can't wait to share our bak
         },
       }
     );
+<<<<<<< HEAD
     await SiteSettings.updateOne(
       { phone: "905-832-3272" },
       { $set: { phone: "647-515-DINO" } }
     );
+=======
+>>>>>>> 7fc58c974eb6e57a1188451228042ab63de29fff
     console.log("Site settings: Our Story image & homepage video updated");
   }
 

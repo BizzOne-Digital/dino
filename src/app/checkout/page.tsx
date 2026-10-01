@@ -3,8 +3,12 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+<<<<<<< HEAD
 import { useForm, useWatch } from "react-hook-form";
 import { useRouter } from "next/navigation";
+=======
+import { useForm } from "react-hook-form";
+>>>>>>> 7fc58c974eb6e57a1188451228042ab63de29fff
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion } from "framer-motion";
@@ -44,7 +48,10 @@ const checkoutSchema = z
 type CheckoutForm = z.infer<typeof checkoutSchema>;
 
 export default function CheckoutPage() {
+<<<<<<< HEAD
   const router = useRouter();
+=======
+>>>>>>> 7fc58c974eb6e57a1188451228042ab63de29fff
   const { items, clearCart } = useCart();
   const [pricing, setPricing] = useState<PricingResult | null>(null);
   const [loading, setLoading] = useState(false);
@@ -58,7 +65,11 @@ export default function CheckoutPage() {
   const {
     register,
     handleSubmit,
+<<<<<<< HEAD
     control,
+=======
+    watch,
+>>>>>>> 7fc58c974eb6e57a1188451228042ab63de29fff
     formState: { errors },
   } = useForm<CheckoutForm>({
     resolver: zodResolver(checkoutSchema),
@@ -69,9 +80,15 @@ export default function CheckoutPage() {
     },
   });
 
+<<<<<<< HEAD
   const fulfillment = useWatch({ control, name: "fulfillment" });
   const discountCode = useWatch({ control, name: "discountCode" });
   const postalCode = useWatch({ control, name: "postalCode" });
+=======
+  const fulfillment = watch("fulfillment");
+  const discountCode = watch("discountCode");
+  const postalCode = watch("postalCode");
+>>>>>>> 7fc58c974eb6e57a1188451228042ab63de29fff
 
   useEffect(() => {
     fetch("/api/site-data")
@@ -165,9 +182,15 @@ export default function CheckoutPage() {
       clearCart();
 
       if (result.checkoutUrl) {
+<<<<<<< HEAD
         window.location.assign(result.checkoutUrl);
       } else {
         router.push(`/checkout/success?order=${result.orderNumber}`);
+=======
+        window.location.href = result.checkoutUrl;
+      } else {
+        window.location.href = `/checkout/success?order=${result.orderNumber}`;
+>>>>>>> 7fc58c974eb6e57a1188451228042ab63de29fff
       }
     } catch {
       toast.error("Something went wrong");
