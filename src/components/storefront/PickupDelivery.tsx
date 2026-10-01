@@ -2,6 +2,7 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import { MapPin, Clock, Truck, Package, Info } from "lucide-react";
+import { isPlaceholderPickupAddress } from "@/lib/site-settings";
 import { formatCurrency } from "@/lib/utils";
 import type { SiteSettingsData } from "@/types";
 
@@ -12,6 +13,9 @@ interface PickupDeliveryProps {
 export function PickupDelivery({ settings }: PickupDeliveryProps) {
   const reducedMotion = useReducedMotion();
   const { pickup, delivery } = settings;
+  const pickupAddress = isPlaceholderPickupAddress(pickup.address)
+    ? ""
+    : pickup.address?.trim() ?? "";
 
   return (
     <section id="pickup" className="py-20 px-4 lg:px-6 bg-forest text-cream relative overflow-hidden">
@@ -49,10 +53,14 @@ export function PickupDelivery({ settings }: PickupDeliveryProps) {
             </div>
 
             <div className="space-y-4 text-cream/80">
-              <div className="flex gap-3">
-                <MapPin size={18} className="shrink-0 mt-0.5 text-dino" />
-                <p>{pickup.address || "GTA — address provided after order"}</p>
-              </div>
+              {pickupAddress ? (
+                <div className="flex gap-3">
+                  <MapPin size={18} className="shrink-0 mt-0.5 text-dino" />
+                  <p>{pickupAddress}</p>
+                </div>
+              ) : (
+                <p>GTA — pickup details shared after you order.</p>
+              )}
               {pickup.instructions && (
                 <div className="flex gap-3">
                   <Info size={18} className="shrink-0 mt-0.5 text-dino" />

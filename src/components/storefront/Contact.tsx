@@ -7,6 +7,7 @@ import { z } from "zod";
 import { motion, useReducedMotion } from "framer-motion";
 import { Mail, Phone, MapPin, Send, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { isPlaceholderPickupAddress } from "@/lib/site-settings";
 import { phoneToTelHref } from "@/lib/utils";
 import type { SiteSettingsData } from "@/types";
 
@@ -100,7 +101,8 @@ export function Contact({ settings }: ContactProps) {
                   <span className="text-sm sm:text-base">{settings.phone}</span>
                 </a>
               )}
-              {settings.pickup?.address && (
+              {settings.pickup?.address &&
+                !isPlaceholderPickupAddress(settings.pickup.address) && (
                 <div className="flex items-start gap-3 text-charcoal/70 min-w-0">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-dino/10">
                     <MapPin size={18} className="text-dino" />

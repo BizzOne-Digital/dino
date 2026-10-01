@@ -1,16 +1,31 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
-import { getSiteSettings } from "@/models/SiteSettings";
+import {
+  getLegacySiteSettingsPatches,
+  normalizePublicSiteSettings,
+} from "@/lib/site-settings";
+import { getSiteSettings, SiteSettings } from "@/models/SiteSettings";
 import { PromotionRule } from "@/models/PromotionRule";
 import { DiscountCode } from "@/models/DiscountCode";
 import { FAQ } from "@/models/FAQ";
 import { Testimonial } from "@/models/Testimonial";
+import type { SiteSettingsData } from "@/types";
 
 export async function GET() {
   try {
     await connectDB();
-    const [settings, promotions, publicCodes, faqs, testimonials] = await Promise.all([
-      getSiteSettings(),
+    let settings = await getSiteSettings();
+    const legacyPatches = getLegacySiteSettingsPatches(settings);
+    if (Object.keys(legacyPatches).length > 0) {
+      await SiteSettings.updateOne({ _id: settings._id }, { $set: legacyPatches });
+      settings = await getSiteSettings();
+    }
+
+    const publicSettings = normalizePublicSiteSettings(
+      JSON.parse(JSON.stringify(settings)) as SiteSettingsData
+    );
+
+    const [promotions, publicCodes, faqs, testimonials] = await Promise.all([
       PromotionRule.find({ isActive: true }).sort({ order: 1 }).lean(),
       DiscountCode.find({
         isActive: true,
@@ -22,7 +37,7 @@ export async function GET() {
     ]);
 
     return NextResponse.json({
-      settings: JSON.parse(JSON.stringify(settings)),
+      settings: publicSettings,
       promotions: promotions.map((p) => ({ ...p, _id: p._id.toString() })),
       publicDiscountCodes: publicCodes.map((c) => ({
         code: c.code,

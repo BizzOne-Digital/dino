@@ -20,6 +20,7 @@ import { FAQ } from "./FAQ";
 import { Contact } from "./Contact";
 import { Footer } from "./Footer";
 import { CartDrawer } from "./CartDrawer";
+import { normalizePublicSiteSettings } from "@/lib/site-settings";
 import type { SiteSettingsData } from "@/types";
 
 interface SiteData {
@@ -53,7 +54,7 @@ const DEFAULT_SETTINGS: SiteSettingsData = {
   },
   story: "",
   pickup: {
-    address: "[Configure pickup address in admin settings]",
+    address: "",
     instructions: "",
     days: [],
     timeWindows: [],
@@ -102,12 +103,17 @@ export function HomePage() {
     fetch("/api/site-data")
       .then((r) => r.json())
       .then((data) => {
-        if (!data.error) setSiteData(data);
+        if (!data.error) {
+          setSiteData({
+            ...data,
+            settings: normalizePublicSiteSettings(data.settings),
+          });
+        }
       })
       .catch(() => {});
   }, []);
 
-  const settings = siteData?.settings ?? DEFAULT_SETTINGS;
+  const settings = normalizePublicSiteSettings(siteData?.settings ?? DEFAULT_SETTINGS);
 
   return (
     <>
