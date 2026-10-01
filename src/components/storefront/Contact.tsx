@@ -7,10 +7,7 @@ import { z } from "zod";
 import { motion, useReducedMotion } from "framer-motion";
 import { Mail, Phone, MapPin, Send, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-<<<<<<< HEAD
 import { phoneToTelHref } from "@/lib/utils";
-=======
->>>>>>> 7fc58c974eb6e57a1188451228042ab63de29fff
 import type { SiteSettingsData } from "@/types";
 
 const contactSchema = z.object({
@@ -94,11 +91,7 @@ export function Contact({ settings }: ContactProps) {
               )}
               {settings.phone && (
                 <a
-<<<<<<< HEAD
                   href={phoneToTelHref(settings.phone)}
-=======
-                  href={`tel:${settings.phone}`}
->>>>>>> 7fc58c974eb6e57a1188451228042ab63de29fff
                   className="flex items-center gap-3 text-charcoal/70 hover:text-forest transition-colors min-w-0"
                 >
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-dino/10">

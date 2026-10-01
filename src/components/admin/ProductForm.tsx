@@ -282,10 +282,7 @@ export function ProductForm({ initial, onSubmit, submitLabel = "Save Product" }:
           <AdminButton type="button" variant="secondary" onClick={addImage}>Use URL</AdminButton>
         </div>
         {(form.media[0] || imageUrl) && (
-<<<<<<< HEAD
           // eslint-disable-next-line @next/next/no-img-element -- admin preview for arbitrary upload URLs
-=======
->>>>>>> 7fc58c974eb6e57a1188451228042ab63de29fff
           <img
             src={form.media[0]?.url || imageUrl}
             alt=""

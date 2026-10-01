@@ -1,10 +1,6 @@
 "use client";
 
-<<<<<<< HEAD
 import { useCallback, useEffect, useState } from "react";
-=======
-import { useEffect, useState } from "react";
->>>>>>> 7fc58c974eb6e57a1188451228042ab63de29fff
 import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
 import {
@@ -32,28 +28,18 @@ export default function InquiriesPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "unread">("all");
 
-<<<<<<< HEAD
   const fetchInquiries = useCallback(async () => {
-=======
-  async function fetchInquiries() {
->>>>>>> 7fc58c974eb6e57a1188451228042ab63de29fff
     setLoading(true);
     const params = filter === "unread" ? "?unread=true" : "";
     const res = await fetch(`/api/admin/inquiries${params}`);
     const data = await res.json();
     setInquiries(data.inquiries || []);
     setLoading(false);
-<<<<<<< HEAD
   }, [filter]);
 
   useEffect(() => {
     fetchInquiries();
   }, [fetchInquiries]);
-=======
-  }
-
-  useEffect(() => { fetchInquiries(); }, [filter]);
->>>>>>> 7fc58c974eb6e57a1188451228042ab63de29fff
 
   async function markRead(id: string) {
     await fetch("/api/admin/inquiries", {

@@ -42,11 +42,7 @@ interface SiteData {
 const DEFAULT_SETTINGS: SiteSettingsData = {
   businessName: "Dino's Cookies & Bagels",
   email: "sales@dinoscookiesandbagels.ca",
-<<<<<<< HEAD
   phone: "647-515-DINO",
-=======
-  phone: "905-832-3272",
->>>>>>> 7fc58c974eb6e57a1188451228042ab63de29fff
   socialLinks: {},
   heroHeading: "Wildly Fresh. Naturally Baked.",
   heroDescription:
@@ -84,10 +80,6 @@ const HOMEPAGE_VIDEO_URL = "/dinos-cookies-bagels-cinematic-4k.mp4";
 const HOMEPAGE_VIDEO_POSTER = "/images/our-story.jpg";
 
 export function HomePage() {
-<<<<<<< HEAD
-=======
-  const [loaded, setLoaded] = useState(false);
->>>>>>> 7fc58c974eb6e57a1188451228042ab63de29fff
   const [siteData, setSiteData] = useState<SiteData | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [categories, setCategories] = useState<
@@ -112,12 +104,7 @@ export function HomePage() {
       .then((data) => {
         if (!data.error) setSiteData(data);
       })
-<<<<<<< HEAD
       .catch(() => {});
-=======
-      .catch(() => {})
-      .finally(() => setLoaded(true));
->>>>>>> 7fc58c974eb6e57a1188451228042ab63de29fff
   }, []);
 
   const settings = siteData?.settings ?? DEFAULT_SETTINGS;

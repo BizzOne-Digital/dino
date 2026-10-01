@@ -31,7 +31,6 @@ export function slugify(text: string): string {
 export function sanitizeString(input: string, maxLength = 500): string {
   return input.trim().slice(0, maxLength);
 }
-<<<<<<< HEAD
 
 /** Shown on the storefront (vanity format). */
 export const BUSINESS_PHONE_DISPLAY = "647-515-DINO";
@@ -80,5 +79,3 @@ export function phoneToTelHref(phone: string): string {
   }
   return `tel:${digits}`;
 }
-=======
->>>>>>> 7fc58c974eb6e57a1188451228042ab63de29fff
