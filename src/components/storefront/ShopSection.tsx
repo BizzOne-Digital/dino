@@ -17,6 +17,22 @@ import {
 import { useCart } from "@/context/CartContext";
 import { formatCurrency, cn } from "@/lib/utils";
 
+const DINO_PLUSH_SLUG = "dino-plush";
+const PLUSH_PROMO_LINE = "Order $50.00 of product. Get one free.";
+
+function PlushPromoCallout({ className }: { className?: string }) {
+  return (
+    <p
+      className={cn(
+        "rounded-lg border border-dino/25 bg-dino/10 px-2.5 py-2 text-xs font-semibold leading-snug text-forest",
+        className
+      )}
+    >
+      {PLUSH_PROMO_LINE}
+    </p>
+  );
+}
+
 interface ProductMedia {
   url: string;
   alt?: string;
@@ -347,6 +363,11 @@ export function ShopSection({ initialSearch = "", initialCategory = "" }: ShopSe
                       Sale
                     </span>
                   )}
+                  {product.slug === DINO_PLUSH_SLUG && (
+                    <span className="absolute top-3 left-3 max-w-[85%] rounded-full bg-caramel px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-cream sm:text-xs">
+                      Free with $50+ order
+                    </span>
+                  )}
                   {product.isGlutenFree && (
                     <span className="absolute top-3 right-3 rounded-full bg-dino/90 px-2 py-1 text-xs font-medium text-cream flex items-center gap-1">
                       <Leaf size={12} /> GF
@@ -374,6 +395,7 @@ export function ShopSection({ initialSearch = "", initialCategory = "" }: ShopSe
                   {product.shortDescription && (
                     <p className="mt-1 text-sm text-charcoal/60 line-clamp-2">{product.shortDescription}</p>
                   )}
+                  {product.slug === DINO_PLUSH_SLUG && <PlushPromoCallout className="mt-2" />}
                   <div className="mt-3 flex items-center justify-between gap-2">
                     <div className="min-w-0">
                       <span className="font-bold text-forest">
@@ -456,6 +478,7 @@ export function ShopSection({ initialSearch = "", initialCategory = "" }: ShopSe
               <div className="flex flex-col p-6 lg:p-8">
                 <h3 className="font-display text-2xl font-bold text-forest">{quickView.name}</h3>
                 <p className="mt-2 text-charcoal/70">{quickView.description || quickView.shortDescription}</p>
+                {quickView.slug === DINO_PLUSH_SLUG && <PlushPromoCallout className="mt-3" />}
                 <div className="mt-4 flex items-center gap-3">
                   <span className="text-2xl font-bold text-forest">
                     {formatCurrency(

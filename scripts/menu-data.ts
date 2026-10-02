@@ -54,7 +54,8 @@ export const DINO_PLUSH = {
   name: "Dino's Plush Toy",
   slug: "dino-plush",
   priceCents: 1499,
-  shortDescription: "Approx. 5\" tall — soft mascot plush with scarf",
+  shortDescription:
+    "Approx. 5\" tall — soft mascot plush with scarf. Order $50.00 of product. Get one free.",
   description:
     "Meet our cuddly Dino mascot plush — about 5 inches tall, with a cozy scarf printed with Dino's Cookies & Bagels. Perfect for little fans (and big ones too). Order $50 of baked goods and get one plush free — add the plush to your cart to redeem.",
 } as const;
