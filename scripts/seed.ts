@@ -17,6 +17,7 @@ import {
   COOKIE_FLAVORS,
   BAGEL_PACK_VARIANTS,
   COOKIE_PACK_VARIANTS,
+  DINO_PLUSH,
   productImagePath,
 } from "./menu-data";
 
@@ -178,6 +179,38 @@ async function seed() {
     tags: ["combo", "deal"],
   });
 
+  menuProducts.push({
+    name: DINO_PLUSH.name,
+    slug: DINO_PLUSH.slug,
+    shortDescription: DINO_PLUSH.shortDescription,
+    description: DINO_PLUSH.description,
+    price: DINO_PLUSH.priceCents,
+    category: categoryMap.merchandise,
+    categorySlug: "merchandise",
+    media: [
+      {
+        url: productImagePath("merchandise", DINO_PLUSH.slug),
+        publicId: `local/merchandise/${DINO_PLUSH.slug}`,
+        type: "image",
+        alt: DINO_PLUSH.name,
+        order: 0,
+      },
+      {
+        url: "/images/products/merchandise/dino-plush-alt.jpg",
+        publicId: "local/merchandise/dino-plush-alt",
+        type: "image",
+        alt: `${DINO_PLUSH.name} alternate view`,
+        order: 1,
+      },
+    ],
+    variants: [],
+    isFeatured: true,
+    isPublished: true,
+    inStock: true,
+    stock: 50,
+    tags: ["plush", "merchandise", "gift"],
+  });
+
   const menuSlugs = menuProducts.map((p) => p.slug);
 
   await Product.updateMany(
@@ -206,7 +239,29 @@ async function seed() {
   }
 
   await PromotionRule.updateMany({}, { $set: { isActive: false } });
-  console.log("Legacy promotions deactivated (pricing is in pack variants)");
+  console.log("Legacy quantity promotions deactivated");
+
+  const plushProduct = await Product.findOne({ slug: DINO_PLUSH.slug });
+  if (plushProduct) {
+    await PromotionRule.findOneAndUpdate(
+      { name: "Free Dino Plush with $50+ order" },
+      {
+        $set: {
+          name: "Free Dino Plush with $50+ order",
+          minimumSubtotalCents: 5000,
+          buyQuantity: 1,
+          freeQuantity: 1,
+          eligibleProducts: [plushProduct._id],
+          eligibleCategories: [],
+          stackable: false,
+          isActive: true,
+          order: 0,
+        },
+      },
+      { upsert: true }
+    );
+    console.log("Plush spend-threshold promotion synced");
+  }
 
   const faqs = [
     {
@@ -236,6 +291,13 @@ async function seed() {
         "Each bagel and cookie flavour can be ordered as a single item, 6-pack, or full dozen. Choose your pack size when adding to cart.",
       category: "products",
       order: 4,
+    },
+    {
+      question: "How does the free Dino plush promotion work?",
+      answer:
+        "Our Dino plush toy is $14.99 each (about 5 inches tall). When your cart total for baked goods reaches $50 before tax and delivery, add a Dino Plush to your cart and one plush is free at checkout.",
+      category: "products",
+      order: 5,
     },
     {
       question: "How long does order preparation take?",

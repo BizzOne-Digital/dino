@@ -132,7 +132,8 @@ export function HomePage() {
               "Chocolate Chip Cookies",
               "Gluten-Free Bakes",
               "English Muffins",
-              "Buy 6 Get 1 Free",
+              "Dino Plush — $14.99",
+              "Free Plush with $50+ Order",
               "Organic Ingredients",
               "Local Delivery",
             ]}

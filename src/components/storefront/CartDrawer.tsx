@@ -105,6 +105,22 @@ export function CartDrawer() {
               </motion.div>
             )}
 
+            {pricing?.promoHint && (
+              <div className="flex items-center gap-2 bg-dino/10 px-6 py-3 text-sm border-b border-dino/10">
+                <Gift size={16} className="text-dino shrink-0" />
+                <span className="text-charcoal">
+                  {pricing.promoHint.message}{" "}
+                  <a
+                    href="#shop"
+                    onClick={() => setIsOpen(false)}
+                    className="font-semibold text-forest underline"
+                  >
+                    Shop plush
+                  </a>
+                </span>
+              </div>
+            )}
+
             {pricing && pricing.promotionSavings > 0 && (
               <div className="flex items-center gap-2 bg-caramel/10 px-6 py-3 text-sm">
                 <Gift size={16} className="text-caramel shrink-0" />

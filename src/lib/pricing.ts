@@ -38,6 +38,30 @@ export function calculatePromotions(
     const categoryIds = rule.eligibleCategories.map((c) => c.toString());
     const productIds = rule.eligibleProducts.map((p) => p.toString());
 
+    if (rule.minimumSubtotalCents && rule.minimumSubtotalCents > 0 && productIds.length > 0) {
+      const spendItems = eligibleItems.filter((item) => !productIds.includes(item.productId));
+      const spendSubtotal = spendItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
+      if (spendSubtotal < rule.minimumSubtotalCents) continue;
+
+      const giftLines = eligibleItems.filter((item) => productIds.includes(item.productId));
+      if (giftLines.length === 0) continue;
+
+      const giftUnitsInCart = giftLines.reduce((sum, i) => sum + i.quantity, 0);
+      const freeQty = Math.min(rule.freeQuantity, giftUnitsInCart);
+      if (freeQty <= 0) continue;
+
+      const giftUnitPrice = Math.min(...giftLines.map((i) => i.price));
+      totalFree += freeQty;
+      totalSavings += freeQty * giftUnitPrice;
+      appliedRules.push({
+        name: rule.name,
+        buyQuantity: rule.minimumSubtotalCents,
+        freeQuantity: rule.freeQuantity,
+      });
+      if (!rule.stackable) break;
+      continue;
+    }
+
     const matchingItems = eligibleItems.filter((item) => {
       if (productIds.length && !productIds.includes(item.productId)) return false;
       if (categoryIds.length && item.categorySlug) {
@@ -67,6 +91,36 @@ export function calculatePromotions(
   }
 
   return { freeQuantity: totalFree, savingsCents: totalSavings, appliedRules };
+}
+
+export interface SpendThresholdPromoHint {
+  message: string;
+}
+
+/** Shown when the customer qualifies for a free gift but has not added it to the cart yet. */
+export function getSpendThresholdPromoHint(
+  items: CartItem[],
+  rules: IPromotionRule[]
+): SpendThresholdPromoHint | null {
+  const activeRules = rules.filter((r) => r.isActive && r.minimumSubtotalCents && r.minimumSubtotalCents > 0);
+
+  for (const rule of activeRules) {
+    const giftProductIds = rule.eligibleProducts.map((p) => p.toString());
+    if (giftProductIds.length === 0) continue;
+
+    const spendSubtotal = items
+      .filter((item) => !giftProductIds.includes(item.productId))
+      .reduce((sum, i) => sum + i.price * i.quantity, 0);
+
+    const hasGiftInCart = items.some((item) => giftProductIds.includes(item.productId));
+    if (spendSubtotal >= rule.minimumSubtotalCents! && !hasGiftInCart) {
+      return {
+        message: "You've unlocked a FREE Dino Plush! Add it from the shop to redeem.",
+      };
+    }
+  }
+
+  return null;
 }
 
 export function calculateOrderPricing(input: PricingInput): PricingResult {

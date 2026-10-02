@@ -6,7 +6,11 @@ import { PromotionRule } from "@/models/PromotionRule";
 import { DiscountCode } from "@/models/DiscountCode";
 import { DeliveryZone } from "@/models/DeliveryZone";
 import { getSiteSettings } from "@/models/SiteSettings";
-import { calculateOrderPricing, calculatePromotions } from "@/lib/pricing";
+import {
+  calculateOrderPricing,
+  calculatePromotions,
+  getSpendThresholdPromoHint,
+} from "@/lib/pricing";
 import { getEffectivePrice } from "@/lib/pricing-helpers";
 import type { CartItem } from "@/types";
 
@@ -88,9 +92,11 @@ export async function POST(request: Request) {
     });
 
     const promoDetails = calculatePromotions(cartItems, promotionRules);
+    const promoHint = getSpendThresholdPromoHint(cartItems, promotionRules);
 
     return NextResponse.json({
       ...pricing,
+      promoHint,
       appliedPromotions: promoDetails.appliedRules,
       discountCodeValid: discountCode ? pricing.discount > 0 : false,
     });

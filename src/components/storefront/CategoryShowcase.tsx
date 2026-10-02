@@ -40,6 +40,14 @@ const DEFAULT_CATEGORIES: Category[] = [
     startingPrice: 600,
     image: "/images/categories/combo-deals.jpg",
   },
+  {
+    _id: "4",
+    name: "Merchandise",
+    slug: "merchandise",
+    description: "Dino plush & gifts",
+    startingPrice: 1499,
+    image: "/images/products/merchandise/dino-plush.jpg",
+  },
 ];
 
 const GRADIENTS = [

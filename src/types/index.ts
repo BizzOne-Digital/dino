@@ -36,6 +36,7 @@ export interface PricingResult {
   discount: number;
   promotionSavings: number;
   freeItems: number;
+  promoHint?: { message: string };
   tax: number;
   deliveryFee: number;
   total: number;

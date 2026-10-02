@@ -3,6 +3,8 @@ import mongoose, { Schema, type Model } from "mongoose";
 export interface IPromotionRule {
   _id: mongoose.Types.ObjectId;
   name: string;
+  /** When set, spend threshold promo: subtotal (excluding gift SKUs) must reach this amount (cents). */
+  minimumSubtotalCents?: number;
   buyQuantity: number;
   freeQuantity: number;
   eligibleCategories: mongoose.Types.ObjectId[];
@@ -19,6 +21,7 @@ export interface IPromotionRule {
 const PromotionRuleSchema = new Schema<IPromotionRule>(
   {
     name: { type: String, required: true },
+    minimumSubtotalCents: { type: Number, default: 0 },
     buyQuantity: { type: Number, required: true },
     freeQuantity: { type: Number, required: true },
     eligibleCategories: [{ type: Schema.Types.ObjectId, ref: "ProductCategory" }],

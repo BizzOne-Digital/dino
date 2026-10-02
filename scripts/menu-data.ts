@@ -12,6 +12,7 @@ export const CATEGORY_IMAGE_PATHS: Record<string, string> = {
   bagels: "/images/categories/bagels.jpg",
   cookies: "/images/categories/cookies.jpg",
   "combo-deals": "/images/categories/combo-deals.jpg",
+  merchandise: "/images/products/merchandise/dino-plush.jpg",
 };
 
 export const MENU_CATEGORIES = [
@@ -39,7 +40,24 @@ export const MENU_CATEGORIES = [
     order: 3,
     image: CATEGORY_IMAGE_PATHS["combo-deals"],
   },
+  {
+    name: "Merchandise",
+    slug: "merchandise",
+    description: "Dino plush & more",
+    startingPrice: 1499,
+    order: 4,
+    image: CATEGORY_IMAGE_PATHS.merchandise,
+  },
 ] as const;
+
+export const DINO_PLUSH = {
+  name: "Dino's Plush Toy",
+  slug: "dino-plush",
+  priceCents: 1499,
+  shortDescription: "Approx. 5\" tall — soft mascot plush with scarf",
+  description:
+    "Meet our cuddly Dino mascot plush — about 5 inches tall, with a cozy scarf printed with Dino's Cookies & Bagels. Perfect for little fans (and big ones too). Order $50 of baked goods and get one plush free — add the plush to your cart to redeem.",
+} as const;
 
 export const LEGACY_CATEGORY_SLUGS = [
   "gluten-free",
