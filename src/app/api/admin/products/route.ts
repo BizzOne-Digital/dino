@@ -5,6 +5,7 @@ import { Product } from "@/models/Product";
 import { ProductCategory } from "@/models/ProductCategory";
 import { requireAdmin, logAudit } from "@/lib/admin-auth";
 import { slugify } from "@/lib/utils";
+import { adminProductSchema } from "@/lib/admin-product-schema";
 
 export async function GET(request: Request) {
   const { error } = await requireAdmin();
@@ -31,37 +32,12 @@ export async function GET(request: Request) {
   });
 }
 
-const productSchema = z.object({
-  name: z.string().min(1),
-  description: z.string().default(""),
-  shortDescription: z.string().default(""),
-  price: z.number().min(0),
-  compareAtPrice: z.number().optional(),
-  category: z.string(),
-  categorySlug: z.string(),
-  media: z.array(z.object({ url: z.string(), publicId: z.string(), type: z.enum(["image", "video"]).default("image"), alt: z.string().optional(), order: z.number().default(0) })).default([]),
-  variants: z.array(z.object({ name: z.string(), price: z.number(), compareAtPrice: z.number().optional(), stock: z.number().default(0), inStock: z.boolean().default(true) })).default([]),
-  isGlutenFree: z.boolean().default(false),
-  isFeatured: z.boolean().default(false),
-  isRequestOnly: z.boolean().default(false),
-  inStock: z.boolean().default(true),
-  stock: z.number().default(0),
-  salePrice: z.number().optional(),
-  saleStart: z.string().optional(),
-  saleEnd: z.string().optional(),
-  isOnSale: z.boolean().default(false),
-  isPublished: z.boolean().default(false),
-  seoTitle: z.string().optional(),
-  seoDescription: z.string().optional(),
-  tags: z.array(z.string()).default([]),
-});
-
 export async function POST(request: Request) {
   const { error, session } = await requireAdmin();
   if (error) return error;
 
   try {
-    const data = productSchema.parse(await request.json());
+    const data = adminProductSchema.parse(await request.json());
     await connectDB();
 
     const slug = slugify(data.name);
@@ -76,6 +52,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ product: { ...product.toObject(), _id: product._id.toString() } });
   } catch (err) {
     if (err instanceof z.ZodError) return NextResponse.json({ error: err.issues }, { status: 400 });
+    console.error("Product create error:", err);
     return NextResponse.json({ error: "Failed to create product" }, { status: 500 });
   }
 }

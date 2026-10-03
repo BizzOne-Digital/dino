@@ -4,6 +4,10 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   images: {
+    localPatterns: [
+      { pathname: "/images/**" },
+      { pathname: "/api/uploads/**" },
+    ],
     remotePatterns: [
       {
         protocol: "https",

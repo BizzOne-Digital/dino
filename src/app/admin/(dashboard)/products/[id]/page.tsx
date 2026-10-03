@@ -35,7 +35,8 @@ export default function EditProductPage() {
       toast.success("Product updated");
       router.push("/admin/products");
     } else {
-      toast.error("Failed to update product");
+      const err = await res.json();
+      toast.error(typeof err.error === "string" ? err.error : "Failed to update product");
     }
   }
 

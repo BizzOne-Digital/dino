@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { formatCurrency, cn } from "@/lib/utils";
+import { resolveProductImageUrl } from "@/lib/product-image";
 
 const DINO_PLUSH_SLUG = "dino-plush";
 const PLUSH_PROMO_LINE = "Order $50.00 of product. Get one free.";
@@ -210,7 +211,7 @@ export function ShopSection({ initialSearch = "", initialCategory = "" }: ShopSe
       price,
       compareAtPrice: product.compareAtPrice,
       quantity: qty,
-      image: product.media[0]?.url,
+      image: resolveProductImageUrl(product.media[0]?.url),
       categorySlug: product.categorySlug,
       isGlutenFree: product.isGlutenFree,
       variantLabel: variant?.name,
@@ -348,7 +349,7 @@ export function ShopSection({ initialSearch = "", initialCategory = "" }: ShopSe
                 <div className="relative aspect-square overflow-hidden">
                   {product.media[0]?.url ? (
                     <Image
-                      src={product.media[0].url}
+                      src={resolveProductImageUrl(product.media[0].url)}
                       alt={product.media[0].alt || product.name}
                       fill
                       className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -468,7 +469,7 @@ export function ShopSection({ initialSearch = "", initialCategory = "" }: ShopSe
               <div className="relative h-48 shrink-0 sm:h-64 lg:h-auto lg:min-h-[320px] lg:aspect-auto">
                 {quickView.media[0]?.url && (
                   <Image
-                    src={quickView.media[0].url}
+                    src={resolveProductImageUrl(quickView.media[0].url)}
                     alt={quickView.name}
                     fill
                     className="object-cover"

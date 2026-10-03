@@ -4,7 +4,9 @@ import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Plus, Search, Pencil, Trash2 } from "lucide-react";
+import Image from "next/image";
+import { Plus, Search, Pencil, Trash2, Eye, EyeOff } from "lucide-react";
+import { resolveProductImageUrl } from "@/lib/product-image";
 import { formatCurrency } from "@/lib/utils";
 import { AdminButton, AdminCard, AdminPageHeader, EmptyState, inputClass, LoadingState } from "@/components/admin/admin-ui";
 
@@ -15,6 +17,7 @@ interface Product {
   inStock: boolean;
   isPublished: boolean;
   category?: { name: string };
+  media?: { url: string }[];
 }
 
 export default function ProductsPage() {
@@ -37,6 +40,20 @@ export default function ProductsPage() {
     const timer = setTimeout(fetchProducts, 300);
     return () => clearTimeout(timer);
   }, [fetchProducts]);
+
+  async function togglePublished(id: string, isPublished: boolean) {
+    const res = await fetch(`/api/admin/products/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ isPublished: !isPublished }),
+    });
+    if (res.ok) {
+      toast.success(!isPublished ? "Product published" : "Product hidden");
+      fetchProducts();
+    } else {
+      toast.error("Failed to update visibility");
+    }
+  }
 
   async function handleDelete(id: string, name: string) {
     if (!confirm(`Delete "${name}"?`)) return;
@@ -83,6 +100,7 @@ export default function ProductsPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-100 text-left text-gray-500">
+                  <th className="pb-3 font-medium w-14">Image</th>
                   <th className="pb-3 font-medium">Name</th>
                   <th className="pb-3 font-medium">Category</th>
                   <th className="pb-3 font-medium">Price</th>
@@ -94,6 +112,17 @@ export default function ProductsPage() {
               <tbody>
                 {products.map((p) => (
                   <tr key={p._id} className="border-b border-gray-50 hover:bg-gray-50">
+                    <td className="py-3">
+                      <div className="relative h-10 w-10 overflow-hidden rounded-lg bg-gray-100">
+                        <Image
+                          src={resolveProductImageUrl(p.media?.[0]?.url)}
+                          alt=""
+                          fill
+                          className="object-cover"
+                          sizes="40px"
+                        />
+                      </div>
+                    </td>
                     <td className="py-3 font-medium text-forest">{p.name}</td>
                     <td className="py-3">{p.category?.name || "—"}</td>
                     <td className="py-3">{formatCurrency(p.price)}</td>
@@ -104,6 +133,14 @@ export default function ProductsPage() {
                       </span>
                     </td>
                     <td className="py-3 text-right">
+                      <button
+                        type="button"
+                        onClick={() => togglePublished(p._id, p.isPublished)}
+                        className="text-gray-500 hover:text-forest p-1"
+                        title={p.isPublished ? "Hide from shop" : "Publish to shop"}
+                      >
+                        {p.isPublished ? <EyeOff size={16} /> : <Eye size={16} />}
+                      </button>
                       <button onClick={() => router.push(`/admin/products/${p._id}`)} className="text-dino hover:text-forest p-1">
                         <Pencil size={16} />
                       </button>
