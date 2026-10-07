@@ -4,6 +4,7 @@ import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
+import { isPublicImageUrl, resolvePublicImageUrl } from "@/lib/product-image";
 
 interface Category {
   _id: string;
@@ -72,7 +73,9 @@ export function CategoryShowcase({ categories }: CategoryShowcaseProps) {
     return {
       ...cat,
       description: cat.description || fallback?.description,
-      image: cat.image || fallback?.image,
+      image: isPublicImageUrl(cat.image || "")
+        ? cat.image!.trim()
+        : resolvePublicImageUrl(null, fallback?.image),
       startingPrice: cat.startingPrice ?? fallback?.startingPrice,
     };
   });
@@ -113,7 +116,7 @@ export function CategoryShowcase({ categories }: CategoryShowcaseProps) {
               whileHover={reducedMotion ? {} : { y: -8, rotateX: 5, rotateY: -5 }}
               style={{ transformStyle: "preserve-3d" }}
             >
-              {cat.image ? (
+              {cat.image && isPublicImageUrl(cat.image) ? (
                 <Image
                   src={cat.image}
                   alt={cat.name}

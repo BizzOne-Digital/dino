@@ -126,10 +126,13 @@ export default function CategoriesPage() {
                 <label className={labelClass}>Category Image URL</label>
                 <input
                   className={inputClass}
-                  placeholder="/images/categories/bagels.jpg"
+                  placeholder="/images/categories/bagels.jpg or /api/uploads/products/…"
                   value={form.image}
                   onChange={(e) => setForm({ ...form, image: e.target.value })}
                 />
+                <p className="mt-1 text-xs text-gray-500">
+                  Use a site path or upload via Products — not a path from your computer (e.g. /Users/…).
+                </p>
               </div>
               <label className="flex items-center gap-2 text-sm">
                 <input type="checkbox" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} />

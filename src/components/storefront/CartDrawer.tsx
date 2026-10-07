@@ -6,6 +6,7 @@ import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { X, Plus, Minus, ShoppingBag, Trash2, Gift, Loader2 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { formatCurrency } from "@/lib/utils";
+import { resolvePublicImageUrl } from "@/lib/product-image";
 import type { PricingResult } from "@/types";
 
 export function CartDrawer() {
@@ -156,7 +157,7 @@ export function CartDrawer() {
                       <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-beige/30">
                         {item.image ? (
                           <Image
-                            src={item.image}
+                            src={resolvePublicImageUrl(item.image)}
                             alt={item.name}
                             fill
                             className="object-cover"

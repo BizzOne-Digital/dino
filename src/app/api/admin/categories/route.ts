@@ -3,6 +3,7 @@ import { connectDB } from "@/lib/db";
 import { ProductCategory } from "@/models/ProductCategory";
 import { requireAdmin, logAudit } from "@/lib/admin-auth";
 import { slugify } from "@/lib/utils";
+import { sanitizeStoredImageUrl } from "@/lib/product-image";
 
 export async function GET() {
   const { error } = await requireAdmin();
@@ -20,6 +21,7 @@ export async function POST(request: Request) {
 
   try {
     const data = await request.json();
+    if (data.image !== undefined) data.image = sanitizeStoredImageUrl(data.image);
     await connectDB();
     const slug = slugify(data.name);
     const category = await ProductCategory.create({ ...data, slug });
@@ -36,6 +38,7 @@ export async function PUT(request: Request) {
 
   try {
     const { id, ...data } = await request.json();
+    if (data.image !== undefined) data.image = sanitizeStoredImageUrl(data.image);
     await connectDB();
     if (data.name) data.slug = slugify(data.name);
     const category = await ProductCategory.findByIdAndUpdate(id, data, { new: true });
