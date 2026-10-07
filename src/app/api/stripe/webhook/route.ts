@@ -5,6 +5,9 @@ import { Order } from "@/models/Order";
 import { stripe } from "@/lib/stripe";
 import { sendOrderConfirmationEmail } from "@/lib/email";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 export async function POST(request: Request) {
   if (!stripe) {
     return NextResponse.json({ error: "Stripe not configured" }, { status: 500 });

@@ -10,9 +10,14 @@ import { getSiteSettings } from "@/models/SiteSettings";
 import { calculateOrderPricing } from "@/lib/pricing";
 import { getEffectivePrice } from "@/lib/pricing-helpers";
 import { generateOrderNumber } from "@/lib/utils";
-import { stripe } from "@/lib/stripe";
+import Stripe from "stripe";
+import { assertStripeConfigured, stripe, stripeKeyHint } from "@/lib/stripe";
+import { getSiteUrl } from "@/lib/site-url";
 import { sendOrderConfirmationEmail } from "@/lib/email";
 import { rateLimit } from "@/lib/rate-limit";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 const checkoutSchema = z.object({
   items: z.array(
@@ -64,6 +69,12 @@ export async function POST(request: Request) {
 
     if (data.paymentMethod === "stripe" && !settings.stripeEnabled) {
       return NextResponse.json({ error: "Online payment is not available" }, { status: 400 });
+    }
+    if (data.paymentMethod === "stripe" && !stripe) {
+      return NextResponse.json(
+        { error: `Card payments are not configured. ${stripeKeyHint()}` },
+        { status: 503 }
+      );
     }
     if (data.paymentMethod === "pay_on_pickup" && !settings.payOnPickupEnabled) {
       return NextResponse.json({ error: "Pay on pickup is not available" }, { status: 400 });
@@ -180,16 +191,19 @@ export async function POST(request: Request) {
       await DiscountCode.findByIdAndUpdate(discountCode._id, { $inc: { usageCount: 1 } });
     }
 
-    if (data.paymentMethod === "stripe" && stripe) {
-      const session = await stripe.checkout.sessions.create({
+    if (data.paymentMethod === "stripe") {
+      const stripeClient = assertStripeConfigured();
+      const siteUrl = getSiteUrl();
+
+      const session = await stripeClient.checkout.sessions.create({
         payment_method_types: ["card"],
         line_items: [
           {
             price_data: {
               currency: "cad",
               product_data: {
-                name: `Order ${orderNumber}`,
-                description: "Dino's Cookies & Bagels",
+                name: `Dino's Cookies & Bagels — ${orderNumber}`,
+                description: `${data.fulfillment === "delivery" ? "Delivery" : "Pickup"} order`,
               },
               unit_amount: pricing.total,
             },
@@ -197,11 +211,20 @@ export async function POST(request: Request) {
           },
         ],
         mode: "payment",
-        success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/checkout/success?order=${orderNumber}`,
-        cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/checkout/cancelled?order=${orderNumber}`,
+        success_url: `${siteUrl}/checkout/success?order=${encodeURIComponent(orderNumber)}&session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${siteUrl}/checkout/cancelled?order=${encodeURIComponent(orderNumber)}`,
         customer_email: data.customer.email,
-        metadata: { orderNumber, orderId: order._id.toString() },
+        client_reference_id: orderNumber,
+        metadata: {
+          orderNumber,
+          orderId: order._id.toString(),
+          customerName: data.customer.name,
+        },
       });
+
+      if (!session.url) {
+        return NextResponse.json({ error: "Stripe did not return a checkout URL" }, { status: 502 });
+      }
 
       await Order.findByIdAndUpdate(order._id, { stripeSessionId: session.id });
       return NextResponse.json({ orderNumber, checkoutUrl: session.url });
@@ -212,6 +235,16 @@ export async function POST(request: Request) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: error.issues }, { status: 400 });
+    }
+    if (error instanceof Stripe.errors.StripeError) {
+      console.error("Stripe checkout error:", error.message, error.type);
+      const hint = stripeKeyHint();
+      return NextResponse.json(
+        {
+          error: `${error.message}. ${hint}`,
+        },
+        { status: 502 }
+      );
     }
     console.error("Checkout error:", error);
     return NextResponse.json({ error: "Checkout failed" }, { status: 500 });

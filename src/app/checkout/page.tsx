@@ -43,6 +43,12 @@ const checkoutSchema = z
 
 type CheckoutForm = z.infer<typeof checkoutSchema>;
 
+function formatApiError(error: unknown): string {
+  if (typeof error === "string") return error;
+  if (Array.isArray(error) && error[0]?.message) return String(error[0].message);
+  return "Checkout failed";
+}
+
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, clearCart } = useCart();
@@ -72,6 +78,7 @@ export default function CheckoutPage() {
   const fulfillment = useWatch({ control, name: "fulfillment" });
   const discountCode = useWatch({ control, name: "discountCode" });
   const postalCode = useWatch({ control, name: "postalCode" });
+  const paymentMethod = useWatch({ control, name: "paymentMethod" });
 
   useEffect(() => {
     fetch("/api/site-data")
@@ -158,17 +165,17 @@ export default function CheckoutPage() {
 
       const result = await res.json();
       if (!res.ok) {
-        toast.error(result.error || "Checkout failed");
+        toast.error(formatApiError(result.error), { duration: 8000 });
+        return;
+      }
+
+      if (result.checkoutUrl) {
+        window.location.assign(result.checkoutUrl);
         return;
       }
 
       clearCart();
-
-      if (result.checkoutUrl) {
-        window.location.assign(result.checkoutUrl);
-      } else {
-        router.push(`/checkout/success?order=${result.orderNumber}`);
-      }
+      router.push(`/checkout/success?order=${encodeURIComponent(result.orderNumber)}`);
     } catch {
       toast.error("Something went wrong");
     } finally {
@@ -386,7 +393,11 @@ export default function CheckoutPage() {
             className="hidden w-full items-center justify-center gap-2 rounded-full bg-forest py-4 font-semibold text-cream hover:bg-dino transition-colors disabled:opacity-50 lg:flex"
           >
             {loading ? <Loader2 className="animate-spin" size={20} /> : null}
-            {loading ? "Processing..." : `Place Order — ${pricing ? formatCurrency(pricing.total) : "..."}`}
+            {loading
+              ? "Processing..."
+              : paymentMethod === "stripe"
+                ? `Pay Now — ${pricing ? formatCurrency(pricing.total) : "..."}`
+                : `Place Order — ${pricing ? formatCurrency(pricing.total) : "..."}`}
           </button>
         </form>
       </div>
@@ -406,7 +417,13 @@ export default function CheckoutPage() {
             disabled={loading}
             className="flex flex-1 max-w-[200px] items-center justify-center gap-2 rounded-full bg-forest py-3.5 text-sm font-semibold text-cream disabled:opacity-50"
           >
-            {loading ? <Loader2 className="animate-spin" size={18} /> : "Place Order"}
+            {loading ? (
+              <Loader2 className="animate-spin" size={18} />
+            ) : paymentMethod === "stripe" ? (
+              "Pay Now"
+            ) : (
+              "Place Order"
+            )}
           </button>
         </div>
       </div>
