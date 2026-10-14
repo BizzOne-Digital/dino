@@ -171,7 +171,9 @@ export default function CheckoutPage() {
       }
 
       if (result.checkoutUrl) {
-        window.location.assign(result.checkoutUrl);
+        toast.message("Redirecting to secure payment…", { duration: 4000 });
+        // Hosted Stripe Checkout requires a full-page navigation (not client routing).
+        globalThis.location.assign(result.checkoutUrl);
         return;
       }
 

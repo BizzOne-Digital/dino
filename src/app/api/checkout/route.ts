@@ -193,7 +193,7 @@ export async function POST(request: Request) {
 
     if (data.paymentMethod === "stripe") {
       const stripeClient = assertStripeConfigured();
-      const siteUrl = getSiteUrl();
+      const siteUrl = getSiteUrl(request);
 
       const session = await stripeClient.checkout.sessions.create({
         payment_method_types: ["card"],
@@ -219,6 +219,12 @@ export async function POST(request: Request) {
           orderNumber,
           orderId: order._id.toString(),
           customerName: data.customer.name,
+        },
+        payment_intent_data: {
+          metadata: {
+            orderNumber,
+            orderId: order._id.toString(),
+          },
         },
       });
 

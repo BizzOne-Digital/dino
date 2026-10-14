@@ -32,15 +32,23 @@ export async function POST(request: Request) {
     const session = event.data.object;
     const orderNumber = session.metadata?.orderNumber;
 
-    if (orderNumber) {
+    if (orderNumber && session.payment_status === "paid") {
       await connectDB();
-      const order = await Order.findOne({ orderNumber, webhookProcessed: false });
+      const order = await Order.findOneAndUpdate(
+        { orderNumber, paymentStatus: { $ne: "paid" } },
+        {
+          $set: {
+            paymentStatus: "paid",
+            orderStatus: "confirmed",
+            stripeSessionId: session.id,
+            stripePaymentIntentId:
+              typeof session.payment_intent === "string" ? session.payment_intent : undefined,
+            webhookProcessed: true,
+          },
+        },
+        { new: true }
+      );
       if (order) {
-        order.paymentStatus = "paid";
-        order.orderStatus = "confirmed";
-        order.stripePaymentIntentId = session.payment_intent as string;
-        order.webhookProcessed = true;
-        await order.save();
         await sendOrderConfirmationEmail(order);
       }
     }

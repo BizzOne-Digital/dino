@@ -30,18 +30,30 @@ function SuccessContent() {
       return;
     }
 
+    // Returned from Stripe Checkout — clear cart even if confirmation API is slow.
+    if (sessionId) {
+      clearCart();
+    }
+
     const params = new URLSearchParams({ order: orderNumber });
     if (sessionId) params.set("session_id", sessionId);
 
     fetch(`/api/checkout/complete?${params.toString()}`)
-      .then((r) => r.json())
-      .then((d) => {
+      .then(async (r) => {
+        const d = await r.json();
+        if (!r.ok) {
+          console.error("Checkout complete:", d.error ?? r.status);
+          return;
+        }
         if (d.order) {
           setOrder(d.order);
           if (d.paid || d.order.paymentStatus === "paid" || d.order.paymentMethod === "pay_on_pickup") {
             clearCart();
           }
         }
+      })
+      .catch(() => {
+        /* Still show thank-you; webhook or retry may confirm payment */
       })
       .finally(() => setLoading(false));
   }, [orderNumber, sessionId, clearCart]);

@@ -116,7 +116,7 @@ Access at `/admin/login`. Manage:
 1. Set all environment variables on your host (Vercel, Railway, VPS, etc.)
 2. Set `NEXT_PUBLIC_SITE_URL` to your **production domain** (e.g. `https://dinoscookiesandbagels.ca`)
 3. Run `npm run seed` once against production MongoDB (or use admin portal)
-4. Configure Stripe webhook: `https://yourdomain.com/api/stripe/webhook`
+4. Configure Stripe webhook: `https://dinoscookiesandbagels.ca/api/stripe/webhook` (event: `checkout.session.completed`)
 5. Change default admin password after first login
 
 ### Build & run
