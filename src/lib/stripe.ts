@@ -20,7 +20,14 @@ export function assertStripeConfigured(): Stripe {
 export function stripeKeyHint(): string {
   const key = process.env.STRIPE_SECRET_KEY || "";
   if (key.startsWith("rk_")) {
-    return "Restricted keys must allow Checkout Sessions (Write). Create or update the key in Stripe Dashboard → Developers → API keys.";
+    return (
+      "Restricted keys need Checkout Sessions (Write). If checkout still fails, also enable Payment Intents (Write) " +
+      "and Products (Write) for inline line items — or use the standard secret key (sk_live_… / sk_test_…) in STRIPE_SECRET_KEY. " +
+      "Re-copy the full key with no spaces; update Vercel and redeploy."
+    );
   }
-  return "Use a secret key (sk_test_… or sk_live_…) or a restricted key (rk_…) with Checkout Sessions write permission.";
+  if (key.startsWith("pk_")) {
+    return "STRIPE_SECRET_KEY must be sk_live_/sk_test_ (or rk_…), not the publishable pk_ key. Put pk_ in NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY only.";
+  }
+  return "Use a secret key (sk_test_… or sk_live_…) in STRIPE_SECRET_KEY. Re-copy from Stripe Dashboard → API keys if you see Invalid API Key.";
 }

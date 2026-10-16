@@ -220,12 +220,6 @@ export async function POST(request: Request) {
           orderId: order._id.toString(),
           customerName: data.customer.name,
         },
-        payment_intent_data: {
-          metadata: {
-            orderNumber,
-            orderId: order._id.toString(),
-          },
-        },
       });
 
       if (!session.url) {
