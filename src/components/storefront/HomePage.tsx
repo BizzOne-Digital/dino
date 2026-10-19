@@ -20,6 +20,7 @@ import { Contact } from "./Contact";
 import { Footer } from "./Footer";
 import { CartDrawer } from "./CartDrawer";
 import { normalizePublicSiteSettings } from "@/lib/site-settings";
+import { DEFAULT_SOCIAL_LINKS } from "@/lib/storefront-constants";
 import type { SiteSettingsData } from "@/types";
 
 interface SiteData {
@@ -43,7 +44,7 @@ const DEFAULT_SETTINGS: SiteSettingsData = {
   businessName: "Dino's Cookies & Bagels",
   email: "sales@dinoscookiesandbagels.ca",
   phone: "647-515-DINO",
-  socialLinks: {},
+  socialLinks: { ...DEFAULT_SOCIAL_LINKS },
   heroHeading: "Wildly Fresh. Naturally Baked.",
   heroDescription:
     "Organic sourdough bagels, irresistible chocolate chip cookies, and small-batch bakes made with quality local ingredients.",

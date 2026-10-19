@@ -364,6 +364,10 @@ Thank you for supporting our small, local bakery. We can't wait to share our bak
         taxRate: 0,
         payOnPickupEnabled: false,
         delivery: { enabled: false, fee: 500, minimumOrder: 2500, minimumOrderEnabled: false },
+        socialLinks: {
+          facebook: "https://www.facebook.com/share/1FYDS1jnck/?mibextid=wwXIfr",
+          instagram: "https://www.instagram.com/cookie_man1958",
+        },
       },
     });
     console.log("Site settings: Our Story image & homepage video updated");

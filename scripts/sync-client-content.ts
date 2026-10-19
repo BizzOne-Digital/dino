@@ -11,6 +11,7 @@ import { ProductCategory } from "../src/models/ProductCategory";
 import { PromotionRule } from "../src/models/PromotionRule";
 import { SiteSettings } from "../src/models/SiteSettings";
 import { MENU_CATEGORIES, COMBO_PRODUCT_SLUG } from "./menu-data";
+import { DEFAULT_SOCIAL_LINKS } from "../src/lib/storefront-constants";
 
 const CLIENT_FAQS = [
   {
@@ -131,6 +132,10 @@ async function sync() {
         announcementBar: {
           enabled: true,
           message: "Order baked goods online for pickup — we bake fresh with care.",
+        },
+        socialLinks: {
+          facebook: DEFAULT_SOCIAL_LINKS.facebook,
+          instagram: DEFAULT_SOCIAL_LINKS.instagram,
         },
       },
     }

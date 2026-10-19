@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { Camera as InstagramIcon, ExternalLink } from "lucide-react";
 import Image from "next/image";
 import type { SiteSettingsData } from "@/types";
+import { INSTAGRAM_HANDLE } from "@/lib/storefront-constants";
 
 interface InstagramProps {
   settings: SiteSettingsData;
@@ -33,7 +34,7 @@ export function Instagram({ settings }: InstagramProps) {
         >
           <div className="inline-flex items-center gap-2 rounded-full bg-purple/10 px-4 py-1.5 text-sm font-medium text-purple mb-4">
             <InstagramIcon size={16} />
-            @dinoscookies
+            {INSTAGRAM_HANDLE}
           </div>
           <h2 className="font-display text-3xl font-bold text-forest sm:text-4xl">
             Follow Our Kitchen

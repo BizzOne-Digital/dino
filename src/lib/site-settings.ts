@@ -1,5 +1,6 @@
 import type { SiteSettingsData } from "@/types";
 import { BUSINESS_PHONE_DISPLAY } from "@/lib/utils";
+import { DEFAULT_SOCIAL_LINKS } from "@/lib/storefront-constants";
 
 const LEGACY_PHONE_DIGITS = "9058323272";
 
@@ -34,6 +35,10 @@ export function normalizePublicSiteSettings<T extends SiteSettingsData>(settings
   return {
     ...settings,
     phone: normalizeBusinessPhone(settings.phone),
+    socialLinks: {
+      facebook: settings.socialLinks?.facebook?.trim() || DEFAULT_SOCIAL_LINKS.facebook,
+      instagram: settings.socialLinks?.instagram?.trim() || DEFAULT_SOCIAL_LINKS.instagram,
+    },
     pickup: {
       ...settings.pickup,
       address: pickupAddress,
