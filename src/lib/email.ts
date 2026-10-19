@@ -18,9 +18,9 @@ function getTransporter() {
 function formatPaymentMethod(method: string): string {
   switch (method) {
     case "stripe":
-      return "Pay by Stripe";
+      return "Pay by credit card (Stripe)";
     case "stripe_debit":
-      return "Pay by debit card (Stripe)";
+      return "Pay by credit card (Stripe)";
     case "e_transfer":
       return "E-Transfer";
     case "pay_on_pickup":
@@ -54,6 +54,11 @@ export async function sendOrderConfirmationEmail(order: IOrder) {
         <thead><tr style="background: #FFF5E3;"><th align="left">Item</th><th>Qty</th><th>Total</th></tr></thead>
         <tbody>${orderItemsHtml(order)}</tbody>
       </table>
+      ${
+        (order.cardProcessingFee ?? 0) > 0
+          ? `<p>Card processing fee (3%): ${formatCurrency(order.cardProcessingFee)}</p>`
+          : ""
+      }
       <p><strong>Total: ${formatCurrency(order.total)}</strong></p>
       <p>Fulfillment: ${order.fulfillment === "pickup" ? "Pickup" : "Local Delivery"}</p>
       <p>Payment: ${formatPaymentMethod(order.paymentMethod)}</p>

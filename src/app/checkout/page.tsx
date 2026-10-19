@@ -8,8 +8,9 @@ import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion } from "framer-motion";
-import { ArrowLeft, Loader2, MapPin, Package, CreditCard, Banknote, Mail } from "lucide-react";
+import { ArrowLeft, Loader2, MapPin, Package, CreditCard, Mail } from "lucide-react";
 import { E_TRANSFER_EMAIL } from "@/lib/storefront-constants";
+import { cardProcessingFeeCents, orderTotalWithCardFee } from "@/lib/card-processing-fee";
 import { toast } from "sonner";
 import { useCart } from "@/context/CartContext";
 import { formatCurrency } from "@/lib/utils";
@@ -31,7 +32,7 @@ const checkoutSchema = z
     preferredTimeWindow: z.string().optional(),
     discountCode: z.string().optional(),
     marketingConsent: z.boolean(),
-    paymentMethod: z.enum(["stripe", "stripe_debit", "e_transfer"]),
+    paymentMethod: z.enum(["stripe", "e_transfer"]),
   })
   .refine(
     (data) => {
@@ -81,6 +82,13 @@ export default function CheckoutPage() {
   const discountCode = useWatch({ control, name: "discountCode" });
   const postalCode = useWatch({ control, name: "postalCode" });
   const paymentMethod = useWatch({ control, name: "paymentMethod" });
+
+  const cardFee =
+    pricing && paymentMethod === "stripe" ? cardProcessingFeeCents(pricing.total) : 0;
+  const checkoutTotal =
+    pricing && paymentMethod === "stripe"
+      ? orderTotalWithCardFee(pricing.total)
+      : pricing?.total ?? 0;
 
   useEffect(() => {
     fetch("/api/site-data")
@@ -270,9 +278,15 @@ export default function CheckoutPage() {
                     <span>{formatCurrency(pricing.deliveryFee)}</span>
                   </div>
                 )}
+                {cardFee > 0 && (
+                  <div className="flex justify-between text-sm text-charcoal/70">
+                    <span>Card processing fee (3%)</span>
+                    <span>{formatCurrency(cardFee)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between font-display text-lg font-bold text-forest pt-2 border-t">
                   <span>Total</span>
-                  <span>{formatCurrency(pricing.total)}</span>
+                  <span>{formatCurrency(checkoutTotal)}</span>
                 </div>
               </div>
             ) : null}
@@ -361,18 +375,16 @@ export default function CheckoutPage() {
             <h2 className="font-display text-lg font-bold text-forest mb-4">Payment</h2>
             <div className="space-y-3">
               {settings.stripeEnabled && (
-                <>
-                  <label className="flex cursor-pointer items-center gap-3 rounded-xl border-2 border-beige p-4 has-[:checked]:border-dino has-[:checked]:bg-dino/5">
-                    <input type="radio" value="stripe" {...register("paymentMethod")} />
-                    <CreditCard size={20} className="text-dino" />
-                    <span className="font-semibold">Pay by Stripe</span>
-                  </label>
-                  <label className="flex cursor-pointer items-center gap-3 rounded-xl border-2 border-beige p-4 has-[:checked]:border-dino has-[:checked]:bg-dino/5">
-                    <input type="radio" value="stripe_debit" {...register("paymentMethod")} />
-                    <Banknote size={20} className="text-dino" />
-                    <span className="font-semibold">Pay by debit card</span>
-                  </label>
-                </>
+                <label className="flex cursor-pointer items-start gap-3 rounded-xl border-2 border-beige p-4 has-[:checked]:border-dino has-[:checked]:bg-dino/5">
+                  <input type="radio" value="stripe" {...register("paymentMethod")} className="mt-1" />
+                  <CreditCard size={20} className="text-dino shrink-0 mt-0.5" />
+                  <div>
+                    <span className="font-semibold block">Pay by credit card (Stripe)</span>
+                    <span className="text-sm text-charcoal/60">
+                      If paying by credit card, we charge 3% per transaction.
+                    </span>
+                  </div>
+                </label>
               )}
               <label className="flex cursor-pointer items-start gap-3 rounded-xl border-2 border-beige p-4 has-[:checked]:border-dino has-[:checked]:bg-dino/5">
                 <input type="radio" value="e_transfer" {...register("paymentMethod")} className="mt-1" />
@@ -410,7 +422,7 @@ export default function CheckoutPage() {
               ? "Processing..."
               : paymentMethod === "e_transfer"
                 ? `Place Order — ${pricing ? formatCurrency(pricing.total) : "..."}`
-                : `Pay Now — ${pricing ? formatCurrency(pricing.total) : "..."}`}
+                : `Pay Now — ${pricing ? formatCurrency(checkoutTotal) : "..."}`}
           </button>
         </form>
       </div>
@@ -421,7 +433,7 @@ export default function CheckoutPage() {
           <div>
             <p className="text-xs text-charcoal/50">Total</p>
             <p className="font-display text-lg font-bold text-forest">
-              {pricing ? formatCurrency(pricing.total) : "—"}
+              {pricing ? formatCurrency(checkoutTotal) : "—"}
             </p>
           </div>
           <button

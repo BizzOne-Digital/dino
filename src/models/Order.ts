@@ -39,6 +39,7 @@ export interface IOrder {
   freeItems: number;
   tax: number;
   deliveryFee: number;
+  cardProcessingFee: number;
   total: number;
   discountCode?: string;
   promotionDetails?: string;
@@ -91,6 +92,7 @@ const OrderSchema = new Schema<IOrder>(
     freeItems: { type: Number, default: 0 },
     tax: { type: Number, default: 0 },
     deliveryFee: { type: Number, default: 0 },
+    cardProcessingFee: { type: Number, default: 0 },
     total: { type: Number, required: true },
     discountCode: String,
     promotionDetails: String,

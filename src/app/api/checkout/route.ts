@@ -15,6 +15,7 @@ import { assertStripeConfigured, stripe, stripeKeyHint } from "@/lib/stripe";
 import { getSiteUrl } from "@/lib/site-url";
 import { sendOrderConfirmationEmail } from "@/lib/email";
 import { rateLimit } from "@/lib/rate-limit";
+import { cardProcessingFeeCents, orderTotalWithCardFee } from "@/lib/card-processing-fee";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -46,10 +47,10 @@ const checkoutSchema = z.object({
   preferredDate: z.string().optional(),
   preferredTimeWindow: z.string().optional(),
   discountCode: z.string().optional(),
-  paymentMethod: z.enum(["stripe", "stripe_debit", "e_transfer", "pay_on_pickup"]),
+  paymentMethod: z.enum(["stripe", "e_transfer", "pay_on_pickup"]),
 });
 
-const STRIPE_PAYMENT_METHODS = new Set(["stripe", "stripe_debit"]);
+const STRIPE_PAYMENT_METHODS = new Set(["stripe"]);
 
 export async function POST(request: Request) {
   const ip = request.headers.get("x-forwarded-for") || "unknown";
@@ -166,6 +167,14 @@ export async function POST(request: Request) {
 
     const orderNumber = generateOrderNumber();
 
+    const amountBeforeCardFee = pricing.total;
+    const cardProcessingFee =
+      data.paymentMethod === "stripe" ? cardProcessingFeeCents(amountBeforeCardFee) : 0;
+    const orderTotal =
+      data.paymentMethod === "stripe"
+        ? orderTotalWithCardFee(amountBeforeCardFee)
+        : amountBeforeCardFee;
+
     const order = await Order.create({
       orderNumber,
       customer: data.customer,
@@ -180,7 +189,8 @@ export async function POST(request: Request) {
       freeItems: pricing.freeItems,
       tax: pricing.tax,
       deliveryFee: pricing.deliveryFee,
-      total: pricing.total,
+      cardProcessingFee,
+      total: orderTotal,
       discountCode: data.discountCode?.toUpperCase(),
       promotionDetails: pricing.freeItems > 0 ? `${pricing.freeItems} free item(s)` : undefined,
       paymentMethod: data.paymentMethod,
@@ -206,7 +216,7 @@ export async function POST(request: Request) {
                 name: `Dino's Cookies & Bagels — ${orderNumber}`,
                 description: `${data.fulfillment === "delivery" ? "Delivery" : "Pickup"} order`,
               },
-              unit_amount: pricing.total,
+              unit_amount: orderTotal,
             },
             quantity: 1,
           },
