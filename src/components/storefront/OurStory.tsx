@@ -37,14 +37,6 @@ export function OurStory({ settings }: OurStoryProps) {
                 <p className="text-cream/80 text-sm mt-1">Est. with love & sourdough</p>
               </div>
             </div>
-            <motion.div
-              className="absolute -bottom-6 -right-6 hidden lg:block h-32 w-32 rounded-2xl bg-caramel/90 p-4 shadow-xl"
-              animate={reducedMotion ? {} : { rotate: [0, 5, -5, 0] }}
-              transition={{ duration: 6, repeat: Infinity }}
-            >
-              <p className="font-display text-3xl font-bold text-cream">15+</p>
-              <p className="text-sm text-cream/80">Years of baking joy</p>
-            </motion.div>
           </motion.div>
 
           <motion.div

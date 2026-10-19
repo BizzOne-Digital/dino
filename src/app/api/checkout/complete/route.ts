@@ -29,7 +29,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
 
-    if (order.paymentMethod === "pay_on_pickup") {
+    if (order.paymentMethod === "pay_on_pickup" || order.paymentMethod === "e_transfer") {
       return NextResponse.json({
         order: { ...order, _id: order._id.toString() },
         paid: order.paymentStatus === "paid",

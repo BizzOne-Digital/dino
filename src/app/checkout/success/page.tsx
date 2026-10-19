@@ -21,6 +21,7 @@ function SuccessContent() {
     customer: { name: string; email: string };
     fulfillment: string;
     paymentStatus?: string;
+    paymentMethod?: string;
     freeItems?: number;
   } | null>(null);
 
@@ -47,7 +48,12 @@ function SuccessContent() {
         }
         if (d.order) {
           setOrder(d.order);
-          if (d.paid || d.order.paymentStatus === "paid" || d.order.paymentMethod === "pay_on_pickup") {
+          if (
+            d.paid ||
+            d.order.paymentStatus === "paid" ||
+            d.order.paymentMethod === "pay_on_pickup" ||
+            d.order.paymentMethod === "e_transfer"
+          ) {
             clearCart();
           }
         }
@@ -112,6 +118,13 @@ function SuccessContent() {
 
             <p className="text-sm text-charcoal/50 mb-8">
               A confirmation email will be sent to your inbox shortly.
+              {order?.paymentMethod === "e_transfer" && (
+                <>
+                  {" "}
+                  Please e-Transfer your total to{" "}
+                  <strong>sales@dinoscookiesandbagels.ca</strong> and include your order number.
+                </>
+              )}
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center">

@@ -8,11 +8,13 @@ export function slugify(text: string): string {
     .replace(/(^-|-$)/g, "");
 }
 
+export const COMBO_PRODUCT_SLUG = "bagel-cookie-combo";
+
 export const CATEGORY_IMAGE_PATHS: Record<string, string> = {
   bagels: "/images/categories/bagels.jpg",
   cookies: "/images/categories/cookies.jpg",
   "combo-deals": "/images/categories/combo-deals.jpg",
-  merchandise: "/images/products/merchandise/dino-plush.jpg",
+  "sourdough-bread": "/images/our-story.jpg",
 };
 
 export const MENU_CATEGORIES = [
@@ -35,18 +37,18 @@ export const MENU_CATEGORIES = [
   {
     name: "Combo Deals",
     slug: "combo-deals",
-    description: "Bagel + cookie for $6",
-    startingPrice: 600,
+    description: "Bagel + cookie for $7",
+    startingPrice: 700,
     order: 3,
     image: CATEGORY_IMAGE_PATHS["combo-deals"],
   },
   {
-    name: "Merchandise",
-    slug: "merchandise",
-    description: "Dino plush & more",
-    startingPrice: 1499,
+    name: "Sourdough Bread",
+    slug: "sourdough-bread",
+    description: "Artisan sourdough loaves",
+    startingPrice: 350,
     order: 4,
-    image: CATEGORY_IMAGE_PATHS.merchandise,
+    image: CATEGORY_IMAGE_PATHS["sourdough-bread"],
   },
 ] as const;
 
@@ -63,7 +65,7 @@ export const DINO_PLUSH = {
 export const LEGACY_CATEGORY_SLUGS = [
   "gluten-free",
   "english-muffins",
-  "sourdough-bread",
+  "merchandise",
   "seasonal",
   "gift-boxes",
 ];

@@ -32,7 +32,7 @@ const DEFAULT_TESTIMONIALS: Testimonial[] = [
   {
     _id: "3",
     name: "Priya R.",
-    content: "Finally found gluten-free cookies that actually taste amazing. Dino's is a game changer for our family.",
+    content: "Finally found cookies that actually taste amazing. Dino's is a game changer for our family.",
     rating: 5,
   },
 ];

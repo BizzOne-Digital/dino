@@ -18,28 +18,30 @@ interface FAQProps {
 const DEFAULT_FAQS: FAQItem[] = [
   {
     _id: "1",
-    question: "How fresh are the cookies and bagels?",
-    answer: "Everything is baked fresh daily. We recommend enjoying cookies within 3-4 days and bagels within 2 days for the best experience. You can also freeze bagels for up to 3 months.",
+    question: "Do you offer local delivery?",
+    answer: "No delivery at this time.",
   },
   {
     _id: "2",
     question: "Do you offer gluten-free options?",
-    answer: "Yes! We have a dedicated line of gluten-free cookies and select bakes. Look for the GF badge on products in our shop.",
+    answer: "No, at this time.",
   },
   {
     _id: "3",
-    question: "How does the Buy 6 Get 1 Free promotion work?",
-    answer: "When you add 6 eligible items to your cart, the 7th item of the same category is automatically free at checkout. Promotions stack based on our current offers.",
+    question: "What are your bagel and cookie prices?",
+    answer:
+      "Single bagels and cookies are $3.50 each. 6-packs are $18.00 and dozens are $30.00. Our Bagel + Cookie combo is $7.00.",
   },
   {
     _id: "4",
-    question: "What areas do you deliver to?",
-    answer: "We deliver throughout the Greater Toronto Area. Enter your postal code at checkout to confirm delivery availability and fees.",
+    question: "How long does order preparation take?",
+    answer: "Normally 2–3 days depending on the item ordered.",
   },
   {
     _id: "5",
-    question: "Can I pay when I pick up?",
-    answer: "Yes! We accept pay-on-pickup for local orders. You can also pay securely online via Stripe at checkout.",
+    question: "How does pickup work?",
+    answer:
+      "Select pickup at checkout and choose your preferred date and time. Pickup details and address are confirmed in your order email.",
   },
 ];
 

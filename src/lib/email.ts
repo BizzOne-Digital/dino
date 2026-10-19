@@ -15,6 +15,21 @@ function getTransporter() {
   });
 }
 
+function formatPaymentMethod(method: string): string {
+  switch (method) {
+    case "stripe":
+      return "Pay by Stripe";
+    case "stripe_debit":
+      return "Pay by debit card (Stripe)";
+    case "e_transfer":
+      return "E-Transfer";
+    case "pay_on_pickup":
+      return "Pay on Pickup";
+    default:
+      return method;
+  }
+}
+
 function orderItemsHtml(order: IOrder): string {
   return order.items
     .map(
@@ -41,7 +56,12 @@ export async function sendOrderConfirmationEmail(order: IOrder) {
       </table>
       <p><strong>Total: ${formatCurrency(order.total)}</strong></p>
       <p>Fulfillment: ${order.fulfillment === "pickup" ? "Pickup" : "Local Delivery"}</p>
-      <p>Payment: ${order.paymentMethod === "stripe" ? "Card (Stripe)" : "Pay on Pickup"}</p>
+      <p>Payment: ${formatPaymentMethod(order.paymentMethod)}</p>
+      ${
+        order.paymentMethod === "e_transfer"
+          ? `<p>Please e-Transfer <strong>${formatCurrency(order.total)}</strong> to <strong>sales@dinoscookiesandbagels.ca</strong> and include order #${order.orderNumber} in the message.</p>`
+          : ""
+      }
       <p style="color: #583629;">Dino's Cookies & Bagels</p>
     </div>
   `;

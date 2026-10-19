@@ -23,20 +23,8 @@ const PRICING_DEALS = [
     title: "Combo Deal",
     icon: Sparkles,
     accent: "text-dino",
-    lines: ["1 Bagel + 1 Cookie — $6.00"],
-    highlight: "$6.00",
-  },
-  {
-    id: "plush",
-    title: "Dino Plush",
-    icon: Gift,
-    accent: "text-caramel",
-    lines: [
-      "$14.99 each · approx. 5\" tall",
-      "Order $50 of baked goods — get one plush FREE",
-      "(Add the plush to your cart to redeem)",
-    ],
-    highlight: "$14.99",
+    lines: ["1 Bagel + 1 Cookie — $7.00"],
+    highlight: "$7.00",
   },
 ];
 
@@ -69,7 +57,7 @@ export function SpecialOffers() {
           </p>
         </motion.div>
 
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:max-w-5xl lg:mx-auto">
           {PRICING_DEALS.map((deal, i) => {
             const Icon = deal.icon;
             return (

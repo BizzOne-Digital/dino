@@ -10,7 +10,6 @@ import {
   Plus,
   Minus,
   ShoppingBag,
-  Leaf,
   Eye,
   ChevronDown,
 } from "lucide-react";
@@ -18,21 +17,7 @@ import { useCart } from "@/context/CartContext";
 import { formatCurrency, cn } from "@/lib/utils";
 import { resolveProductImageUrl } from "@/lib/product-image";
 
-const DINO_PLUSH_SLUG = "dino-plush";
-const PLUSH_PROMO_LINE = "Order $50.00 of product. Get one free.";
-
-function PlushPromoCallout({ className }: { className?: string }) {
-  return (
-    <p
-      className={cn(
-        "rounded-lg border border-dino/25 bg-dino/10 px-2.5 py-2 text-xs font-semibold leading-snug text-forest",
-        className
-      )}
-    >
-      {PLUSH_PROMO_LINE}
-    </p>
-  );
-}
+import { HIDDEN_CATEGORY_SLUGS } from "@/lib/storefront-constants";
 
 interface ProductMedia {
   url: string;
@@ -145,7 +130,6 @@ export function ShopSection({ initialSearch = "", initialCategory = "" }: ShopSe
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState(initialSearch);
   const [category, setCategory] = useState(initialCategory);
-  const [glutenFree, setGlutenFree] = useState(false);
   const [inStockOnly, setInStockOnly] = useState(false);
   const [sort, setSort] = useState("newest");
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -166,7 +150,6 @@ export function ShopSection({ initialSearch = "", initialCategory = "" }: ShopSe
     const params = new URLSearchParams();
     if (category) params.set("category", category);
     if (search) params.set("search", search);
-    if (glutenFree) params.set("glutenFree", "true");
     if (inStockOnly) params.set("inStock", "true");
     params.set("sort", sort);
     params.set("limit", "60");
@@ -180,7 +163,7 @@ export function ShopSection({ initialSearch = "", initialCategory = "" }: ShopSe
     } finally {
       setLoading(false);
     }
-  }, [category, search, glutenFree, inStockOnly, sort]);
+  }, [category, search, inStockOnly, sort]);
 
   useEffect(() => {
     fetch("/api/categories")
@@ -228,7 +211,7 @@ export function ShopSection({ initialSearch = "", initialCategory = "" }: ShopSe
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
-          <h2 className="font-display text-3xl font-bold text-forest sm:text-4xl">Shop Fresh Bakes</h2>
+          <h2 className="font-display text-3xl font-bold text-forest sm:text-4xl">Shop Baked Goods</h2>
           <p className="mt-3 text-charcoal/60">Handcrafted daily with organic ingredients</p>
         </motion.div>
 
@@ -298,7 +281,9 @@ export function ShopSection({ initialSearch = "", initialCategory = "" }: ShopSe
                 >
                   All
                 </button>
-                {categories.map((c) => (
+                {categories
+                  .filter((c) => !HIDDEN_CATEGORY_SLUGS.includes(c.slug as (typeof HIDDEN_CATEGORY_SLUGS)[number]))
+                  .map((c) => (
                   <button
                     key={c._id}
                     onClick={() => setCategory(c.slug)}
@@ -312,11 +297,6 @@ export function ShopSection({ initialSearch = "", initialCategory = "" }: ShopSe
                     {c.name}
                   </button>
                 ))}
-                <label className="flex items-center gap-2 rounded-full bg-cream px-4 py-2 text-sm cursor-pointer">
-                  <input type="checkbox" checked={glutenFree} onChange={(e) => setGlutenFree(e.target.checked)} />
-                  <Leaf size={14} className="text-dino" />
-                  Gluten-Free
-                </label>
                 <label className="flex items-center gap-2 rounded-full bg-cream px-4 py-2 text-sm cursor-pointer">
                   <input type="checkbox" checked={inStockOnly} onChange={(e) => setInStockOnly(e.target.checked)} />
                   In Stock Only
@@ -364,16 +344,6 @@ export function ShopSection({ initialSearch = "", initialCategory = "" }: ShopSe
                       Sale
                     </span>
                   )}
-                  {product.slug === DINO_PLUSH_SLUG && (
-                    <span className="absolute top-3 left-3 max-w-[85%] rounded-full bg-caramel px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-cream sm:text-xs">
-                      Free with $50+ order
-                    </span>
-                  )}
-                  {product.isGlutenFree && (
-                    <span className="absolute top-3 right-3 rounded-full bg-dino/90 px-2 py-1 text-xs font-medium text-cream flex items-center gap-1">
-                      <Leaf size={12} /> GF
-                    </span>
-                  )}
                   <div className="absolute inset-x-0 bottom-0 flex gap-2 p-3 opacity-100 sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100">
                     <button
                       onClick={() => openQuickView(product)}
@@ -396,7 +366,6 @@ export function ShopSection({ initialSearch = "", initialCategory = "" }: ShopSe
                   {product.shortDescription && (
                     <p className="mt-1 text-sm text-charcoal/60 line-clamp-2">{product.shortDescription}</p>
                   )}
-                  {product.slug === DINO_PLUSH_SLUG && <PlushPromoCallout className="mt-2" />}
                   <div className="mt-3 flex items-center justify-between gap-2">
                     <div className="min-w-0">
                       <span className="font-bold text-forest">
@@ -479,7 +448,6 @@ export function ShopSection({ initialSearch = "", initialCategory = "" }: ShopSe
               <div className="flex flex-col p-6 lg:p-8">
                 <h3 className="font-display text-2xl font-bold text-forest">{quickView.name}</h3>
                 <p className="mt-2 text-charcoal/70">{quickView.description || quickView.shortDescription}</p>
-                {quickView.slug === DINO_PLUSH_SLUG && <PlushPromoCallout className="mt-3" />}
                 <div className="mt-4 flex items-center gap-3">
                   <span className="text-2xl font-bold text-forest">
                     {formatCurrency(

@@ -2,6 +2,11 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { Product } from "@/models/Product";
 import { getEffectivePrice, isProductOnSale } from "@/lib/pricing-helpers";
+import {
+  COMBO_PRODUCT_SLUG,
+  HIDDEN_CATEGORY_SLUGS,
+  HIDDEN_PRODUCT_SLUGS,
+} from "@/lib/storefront-constants";
 
 export async function GET(request: Request) {
   try {
@@ -9,15 +14,17 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const category = searchParams.get("category");
     const search = searchParams.get("search");
-    const glutenFree = searchParams.get("glutenFree");
     const inStock = searchParams.get("inStock");
     const sort = searchParams.get("sort") || "newest";
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "12");
 
-    const filter: Record<string, unknown> = { isPublished: true };
+    const filter: Record<string, unknown> = {
+      isPublished: true,
+      slug: { $nin: [...HIDDEN_PRODUCT_SLUGS] },
+      categorySlug: { $nin: [...HIDDEN_CATEGORY_SLUGS] },
+    };
     if (category) filter.categorySlug = category;
-    if (glutenFree === "true") filter.isGlutenFree = true;
     if (inStock === "true") filter.inStock = true;
     if (search) filter.$text = { $search: search };
 
@@ -26,14 +33,27 @@ export async function GET(request: Request) {
     if (sort === "price_desc") sortOption = { price: -1 };
     if (sort === "popularity") sortOption = { popularity: -1 };
 
-    const [products, total] = await Promise.all([
-      Product.find(filter)
-        .sort(sortOption)
-        .skip((page - 1) * limit)
-        .limit(limit)
-        .lean(),
-      Product.countDocuments(filter),
-    ]);
+    let products = await Product.find(filter)
+      .sort(sortOption)
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .lean();
+
+    let total = await Product.countDocuments(filter);
+
+    if (category === "bagels") {
+      const hasCombo = products.some((p) => p.slug === COMBO_PRODUCT_SLUG);
+      if (!hasCombo) {
+        const combo = await Product.findOne({
+          slug: COMBO_PRODUCT_SLUG,
+          isPublished: true,
+        }).lean();
+        if (combo) {
+          products = [...products, combo];
+          total += 1;
+        }
+      }
+    }
 
     const serialized = products.map((p) => ({
       ...p,

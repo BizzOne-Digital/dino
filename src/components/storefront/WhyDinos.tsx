@@ -23,10 +23,6 @@ const REASONS = [
     title: "Sourdough Tradition",
     description: "Our bagels use a 48-hour sourdough process for unmatched flavor and texture.",
   },
-  {
-    title: "Gluten-Free Options",
-    description: "Delicious gluten-free cookies and bakes that everyone can enjoy.",
-  },
 ];
 
 export function WhyDinos() {

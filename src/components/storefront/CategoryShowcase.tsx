@@ -37,17 +37,17 @@ const DEFAULT_CATEGORIES: Category[] = [
     _id: "3",
     name: "Combo Deals",
     slug: "combo-deals",
-    description: "Bagel + cookie for $6",
-    startingPrice: 600,
+    description: "Bagel + cookie for $7",
+    startingPrice: 700,
     image: "/images/categories/combo-deals.jpg",
   },
   {
     _id: "4",
-    name: "Merchandise",
-    slug: "merchandise",
-    description: "Dino plush & gifts",
-    startingPrice: 1499,
-    image: "/images/products/merchandise/dino-plush.jpg",
+    name: "Sourdough Bread",
+    slug: "sourdough-bread",
+    description: "Artisan sourdough loaves",
+    startingPrice: 350,
+    image: "/images/our-story.jpg",
   },
 ];
 
@@ -64,11 +64,14 @@ interface CategoryShowcaseProps {
 }
 
 const FALLBACK_BY_SLUG = Object.fromEntries(DEFAULT_CATEGORIES.map((c) => [c.slug, c]));
+const HIDDEN_SLUGS = new Set(["merchandise", "gluten-free"]);
 
 export function CategoryShowcase({ categories }: CategoryShowcaseProps) {
   const reducedMotion = useReducedMotion();
-  const source = categories?.length ? categories.slice(0, 5) : DEFAULT_CATEGORIES;
-  const items = source.map((cat) => {
+  const source = (categories?.length ? categories : DEFAULT_CATEGORIES).filter(
+    (c) => !HIDDEN_SLUGS.has(c.slug)
+  );
+  const items = source.slice(0, 5).map((cat) => {
     const fallback = FALLBACK_BY_SLUG[cat.slug];
     return {
       ...cat,
@@ -101,7 +104,7 @@ export function CategoryShowcase({ categories }: CategoryShowcaseProps) {
           className={`-mx-4 flex gap-4 overflow-x-auto px-4 pb-2 scrollbar-hide snap-x snap-mandatory sm:mx-0 sm:grid sm:overflow-visible sm:pb-0 sm:gap-6 ${
             items.length <= 3
               ? "sm:grid-cols-2 lg:grid-cols-3 lg:max-w-5xl lg:mx-auto"
-              : "sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"
+              : "sm:grid-cols-2 lg:grid-cols-4"
           }`}
         >
           {items.map((cat, i) => (

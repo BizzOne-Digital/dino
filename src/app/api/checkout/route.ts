@@ -46,8 +46,10 @@ const checkoutSchema = z.object({
   preferredDate: z.string().optional(),
   preferredTimeWindow: z.string().optional(),
   discountCode: z.string().optional(),
-  paymentMethod: z.enum(["stripe", "pay_on_pickup"]),
+  paymentMethod: z.enum(["stripe", "stripe_debit", "e_transfer", "pay_on_pickup"]),
 });
+
+const STRIPE_PAYMENT_METHODS = new Set(["stripe", "stripe_debit"]);
 
 export async function POST(request: Request) {
   const ip = request.headers.get("x-forwarded-for") || "unknown";
@@ -67,10 +69,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Store is currently closed" }, { status: 400 });
     }
 
-    if (data.paymentMethod === "stripe" && !settings.stripeEnabled) {
+    if (STRIPE_PAYMENT_METHODS.has(data.paymentMethod) && !settings.stripeEnabled) {
       return NextResponse.json({ error: "Online payment is not available" }, { status: 400 });
     }
-    if (data.paymentMethod === "stripe" && !stripe) {
+    if (STRIPE_PAYMENT_METHODS.has(data.paymentMethod) && !stripe) {
       return NextResponse.json(
         { error: `Card payments are not configured. ${stripeKeyHint()}` },
         { status: 503 }
@@ -79,7 +81,6 @@ export async function POST(request: Request) {
     if (data.paymentMethod === "pay_on_pickup" && !settings.payOnPickupEnabled) {
       return NextResponse.json({ error: "Pay on pickup is not available" }, { status: 400 });
     }
-
     const productIds = data.items.map((i) => i.productId);
     const [products, promotionRules] = await Promise.all([
       Product.find({ _id: { $in: productIds }, isPublished: true }),
@@ -191,7 +192,7 @@ export async function POST(request: Request) {
       await DiscountCode.findByIdAndUpdate(discountCode._id, { $inc: { usageCount: 1 } });
     }
 
-    if (data.paymentMethod === "stripe") {
+    if (STRIPE_PAYMENT_METHODS.has(data.paymentMethod)) {
       const stripeClient = assertStripeConfigured();
       const siteUrl = getSiteUrl(request);
 
@@ -231,7 +232,14 @@ export async function POST(request: Request) {
     }
 
     await sendOrderConfirmationEmail(order);
-    return NextResponse.json({ orderNumber, success: true });
+    return NextResponse.json({
+      orderNumber,
+      success: true,
+      eTransferInstructions:
+        data.paymentMethod === "e_transfer"
+          ? "Please send your e-Transfer to sales@dinoscookiesandbagels.ca. Include your order number in the message."
+          : undefined,
+    });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: error.issues }, { status: 400 });

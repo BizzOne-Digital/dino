@@ -12,7 +12,6 @@ import { ShopSection } from "./ShopSection";
 import { SpecialOffers } from "./SpecialOffers";
 import { WhyDinos } from "./WhyDinos";
 import { OurStory } from "./OurStory";
-import { VideoSection } from "./VideoSection";
 import { PickupDelivery } from "./PickupDelivery";
 import { Reviews } from "./Reviews";
 import { Instagram } from "./Instagram";
@@ -50,7 +49,7 @@ const DEFAULT_SETTINGS: SiteSettingsData = {
     "Organic sourdough bagels, irresistible chocolate chip cookies, and small-batch bakes made with quality local ingredients.",
   announcementBar: {
     enabled: true,
-    message: "Fresh bakes daily — order online for pickup or local delivery!",
+    message: "Order baked goods online for pickup — we bake fresh with care.",
   },
   story: "",
   pickup: {
@@ -60,10 +59,10 @@ const DEFAULT_SETTINGS: SiteSettingsData = {
     timeWindows: [],
     cutoffNotice: "",
   },
-  delivery: { enabled: true, fee: 500, minimumOrder: 2500, minimumOrderEnabled: false },
-  taxRate: 13,
+  delivery: { enabled: false, fee: 500, minimumOrder: 2500, minimumOrderEnabled: false },
+  taxRate: 0,
   stripeEnabled: true,
-  payOnPickupEnabled: true,
+  payOnPickupEnabled: false,
   storeOpen: true,
   seo: {
     title: "Dino's Cookies & Bagels",
@@ -76,9 +75,6 @@ const DEFAULT_SETTINGS: SiteSettingsData = {
   refundPolicy: "",
   footerText: "© Dino's Cookies & Bagels. Handcrafted with love.",
 };
-
-const HOMEPAGE_VIDEO_URL = "/dinos-cookies-bagels-cinematic-4k.mp4";
-const HOMEPAGE_VIDEO_POSTER = "/images/our-story.jpg";
 
 export function HomePage() {
   const [siteData, setSiteData] = useState<SiteData | null>(null);
@@ -130,12 +126,11 @@ export function HomePage() {
             items={[
               "Sourdough Bagels",
               "Chocolate Chip Cookies",
-              "Gluten-Free Bakes",
-              "English Muffins",
-              "Dino Plush — $14.99",
-              "Free Plush with $50+ Order",
+              "Sourdough Bread",
+              "Bagel + Cookie Combo — $7",
               "Organic Ingredients",
-              "Local Delivery",
+              "Handcrafted Daily",
+              "Pickup Available",
             ]}
           />
           <CategoryShowcase categories={categories} />
@@ -143,10 +138,6 @@ export function HomePage() {
           <SpecialOffers />
           <WhyDinos />
           <OurStory settings={settings} />
-          <VideoSection
-            videoUrl={siteData?.settings?.homepageVideo?.url || HOMEPAGE_VIDEO_URL}
-            posterUrl={siteData?.settings?.homepageVideo?.poster || HOMEPAGE_VIDEO_POSTER}
-          />
           <PickupDelivery settings={settings} />
           <Reviews testimonials={siteData?.testimonials} />
           <Instagram settings={settings} />

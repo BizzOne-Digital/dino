@@ -156,10 +156,10 @@ async function seed() {
   menuProducts.push({
     name: "Bagel + Cookie Combo",
     slug: "bagel-cookie-combo",
-    shortDescription: "1 bagel and 1 cookie — $6.00",
+    shortDescription: "1 bagel and 1 cookie — $7.00",
     description:
       "Pick your favourite bagel and cookie together at a special combo price. Add to cart and choose your flavours in the shop.",
-    price: 600,
+    price: 700,
     category: categoryMap["combo-deals"],
     categorySlug: "combo-deals",
     media: [
@@ -177,38 +177,6 @@ async function seed() {
     inStock: true,
     stock: 50,
     tags: ["combo", "deal"],
-  });
-
-  menuProducts.push({
-    name: DINO_PLUSH.name,
-    slug: DINO_PLUSH.slug,
-    shortDescription: DINO_PLUSH.shortDescription,
-    description: DINO_PLUSH.description,
-    price: DINO_PLUSH.priceCents,
-    category: categoryMap.merchandise,
-    categorySlug: "merchandise",
-    media: [
-      {
-        url: productImagePath("merchandise", DINO_PLUSH.slug),
-        publicId: `local/merchandise/${DINO_PLUSH.slug}`,
-        type: "image",
-        alt: DINO_PLUSH.name,
-        order: 0,
-      },
-      {
-        url: "/images/products/merchandise/dino-plush-alt.jpg",
-        publicId: "local/merchandise/dino-plush-alt",
-        type: "image",
-        alt: `${DINO_PLUSH.name} alternate view`,
-        order: 1,
-      },
-    ],
-    variants: [],
-    isFeatured: true,
-    isPublished: true,
-    inStock: true,
-    stock: 50,
-    tags: ["plush", "merchandise", "gift"],
   });
 
   const menuSlugs = menuProducts.map((p) => p.slug);
@@ -241,76 +209,55 @@ async function seed() {
   await PromotionRule.updateMany({}, { $set: { isActive: false } });
   console.log("Legacy quantity promotions deactivated");
 
-  const plushProduct = await Product.findOne({ slug: DINO_PLUSH.slug });
-  if (plushProduct) {
-    await PromotionRule.findOneAndUpdate(
-      { name: "Free Dino Plush with $50+ order" },
-      {
-        $set: {
-          name: "Free Dino Plush with $50+ order",
-          minimumSubtotalCents: 5000,
-          buyQuantity: 1,
-          freeQuantity: 1,
-          eligibleProducts: [plushProduct._id],
-          eligibleCategories: [],
-          stackable: false,
-          isActive: true,
-          order: 0,
-        },
-      },
-      { upsert: true }
-    );
-    console.log("Plush spend-threshold promotion synced");
-  }
+  await PromotionRule.updateMany({ name: /plush/i }, { $set: { isActive: false } });
+  await Product.updateMany({ slug: DINO_PLUSH.slug }, { $set: { isPublished: false } });
 
   const faqs = [
     {
       question: "How does pickup work?",
       answer:
-        "Configure pickup instructions, address, and time windows from Admin → Settings. Customers select a preferred date and time during checkout.",
+        "Select pickup at checkout and choose your preferred date and time. Pickup details and address are confirmed in your order email.",
       category: "pickup",
       order: 1,
     },
     {
       question: "Do you offer local delivery?",
-      answer:
-        "Configure delivery zones and fees from Admin → Delivery. Delivery availability depends on your postal code.",
+      answer: "No delivery at this time.",
       category: "delivery",
       order: 2,
     },
     {
+      question: "Do you offer gluten-free options?",
+      answer: "No, at this time.",
+      category: "dietary",
+      order: 3,
+    },
+    {
       question: "What are your bagel and cookie prices?",
       answer:
-        "Single bagels and cookies are $3.50 each. 6-packs are $18.00 and dozens are $30.00. Our Bagel + Cookie combo is $6.00.",
+        "Single bagels and cookies are $3.50 each. 6-packs are $18.00 and dozens are $30.00. Our Bagel + Cookie combo is $7.00.",
       category: "products",
-      order: 3,
+      order: 4,
     },
     {
       question: "How do pack sizes work?",
       answer:
         "Each bagel and cookie flavour can be ordered as a single item, 6-pack, or full dozen. Choose your pack size when adding to cart.",
       category: "products",
-      order: 4,
-    },
-    {
-      question: "How does the free Dino plush promotion work?",
-      answer:
-        "Our Dino plush toy is $14.99 each (about 5 inches tall). When your cart total for baked goods reaches $50 before tax and delivery, add a Dino Plush to your cart and one plush is free at checkout.",
-      category: "products",
       order: 5,
     },
     {
       question: "How long does order preparation take?",
-      answer: "Set your preparation time and order cutoff notice in Admin → Settings.",
+      answer: "Normally 2–3 days depending on the item ordered.",
       category: "orders",
-      order: 5,
+      order: 6,
     },
     {
       question: "What about allergies?",
       answer:
         "Please contact us directly about allergies and cross-contamination concerns. Our kitchen handles wheat, nuts, dairy, eggs, and other allergens.",
       category: "allergies",
-      order: 6,
+      order: 7,
     },
   ];
 
@@ -412,6 +359,13 @@ Thank you for supporting our small, local bakery. We can't wait to share our bak
       { phone: "905-832-3272" },
       { $set: { phone: "647-515-DINO" } }
     );
+    await SiteSettings.findByIdAndUpdate(settings._id, {
+      $set: {
+        taxRate: 0,
+        payOnPickupEnabled: false,
+        delivery: { enabled: false, fee: 500, minimumOrder: 2500, minimumOrderEnabled: false },
+      },
+    });
     console.log("Site settings: Our Story image & homepage video updated");
   }
 

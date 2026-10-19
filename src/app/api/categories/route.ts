@@ -6,7 +6,12 @@ import { sanitizeStoredImageUrl } from "@/lib/product-image";
 export async function GET() {
   try {
     await connectDB();
-    const categories = await ProductCategory.find({ isActive: true }).sort({ order: 1 }).lean();
+    const categories = await ProductCategory.find({
+      isActive: true,
+      slug: { $nin: ["merchandise"] },
+    })
+      .sort({ order: 1 })
+      .lean();
     return NextResponse.json({
       categories: categories.map((c) => ({
         ...c,

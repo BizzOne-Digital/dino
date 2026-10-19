@@ -76,14 +76,14 @@ const SiteSettingsSchema = new Schema<ISiteSettings>(
       cutoffNotice: { type: String, default: "" },
     },
     delivery: {
-      enabled: { type: Boolean, default: true },
+      enabled: { type: Boolean, default: false },
       fee: { type: Number, default: 500 },
       minimumOrder: { type: Number, default: 2500 },
       minimumOrderEnabled: { type: Boolean, default: false },
     },
-    taxRate: { type: Number, default: 13 },
+    taxRate: { type: Number, default: 0 },
     stripeEnabled: { type: Boolean, default: true },
-    payOnPickupEnabled: { type: Boolean, default: true },
+    payOnPickupEnabled: { type: Boolean, default: false },
     storeOpen: { type: Boolean, default: true },
     seo: {
       title: { type: String, default: "Dino's Cookies & Bagels | Organic Home-Baked Goods" },

@@ -116,7 +116,7 @@ export function CartDrawer() {
                     onClick={() => setIsOpen(false)}
                     className="font-semibold text-forest underline"
                   >
-                    Shop plush
+                    Shop baked goods
                   </a>
                 </span>
               </div>

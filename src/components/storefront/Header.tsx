@@ -117,7 +117,7 @@ export function Header({ settings, onSearch }: HeaderProps) {
             href="#shop"
             className="hidden rounded-full bg-gradient-to-r from-forest to-dino px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-cream shadow-md shadow-forest/25 transition-all hover:shadow-lg hover:shadow-dino/30 sm:inline-block"
           >
-            Order Fresh
+            Order Baked Goods
           </a>
 
           <button
@@ -191,7 +191,7 @@ export function Header({ settings, onSearch }: HeaderProps) {
                 onClick={() => setMobileOpen(false)}
                 className="mt-2 rounded-full bg-gradient-to-r from-forest to-dino px-4 py-3 text-center text-sm font-bold uppercase text-cream shadow-md"
               >
-                Order Fresh
+                Order Baked Goods
               </a>
             </div>
           </motion.nav>

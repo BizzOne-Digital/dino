@@ -94,7 +94,11 @@ const OrderSchema = new Schema<IOrder>(
     total: { type: Number, required: true },
     discountCode: String,
     promotionDetails: String,
-    paymentMethod: { type: String, enum: ["stripe", "pay_on_pickup"], required: true },
+    paymentMethod: {
+      type: String,
+      enum: ["stripe", "stripe_debit", "e_transfer", "pay_on_pickup"],
+      required: true,
+    },
     paymentStatus: {
       type: String,
       enum: ["pending", "paid", "failed", "refunded"],

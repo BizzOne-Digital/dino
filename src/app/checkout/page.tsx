@@ -8,7 +8,8 @@ import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion } from "framer-motion";
-import { ArrowLeft, Loader2, MapPin, Package, CreditCard, Wallet } from "lucide-react";
+import { ArrowLeft, Loader2, MapPin, Package, CreditCard, Banknote, Mail } from "lucide-react";
+import { E_TRANSFER_EMAIL } from "@/lib/storefront-constants";
 import { toast } from "sonner";
 import { useCart } from "@/context/CartContext";
 import { formatCurrency } from "@/lib/utils";
@@ -30,7 +31,7 @@ const checkoutSchema = z
     preferredTimeWindow: z.string().optional(),
     discountCode: z.string().optional(),
     marketingConsent: z.boolean(),
-    paymentMethod: z.enum(["stripe", "pay_on_pickup"]),
+    paymentMethod: z.enum(["stripe", "stripe_debit", "e_transfer"]),
   })
   .refine(
     (data) => {
@@ -58,8 +59,8 @@ export default function CheckoutPage() {
   const [calculating, setCalculating] = useState(false);
   const [settings, setSettings] = useState({
     stripeEnabled: true,
-    payOnPickupEnabled: true,
-    delivery: { enabled: true, fee: 500 },
+    payOnPickupEnabled: false,
+    delivery: { enabled: false, fee: 500 },
   });
 
   const {
@@ -177,6 +178,9 @@ export default function CheckoutPage() {
         return;
       }
 
+      if (result.eTransferInstructions) {
+        toast.message(result.eTransferInstructions, { duration: 8000 });
+      }
       clearCart();
       router.push(`/checkout/success?order=${encodeURIComponent(result.orderNumber)}`);
     } catch {
@@ -196,7 +200,7 @@ export default function CheckoutPage() {
           href="/#shop"
           className="rounded-full bg-forest px-8 py-3 font-semibold text-cream hover:bg-dino transition-colors"
         >
-          Shop Fresh Bakes
+          Shop Baked Goods
         </Link>
       </div>
     );
@@ -260,10 +264,6 @@ export default function CheckoutPage() {
                     <span>-{formatCurrency(pricing.discount)}</span>
                   </div>
                 )}
-                <div className="flex justify-between">
-                  <span>Tax</span>
-                  <span>{formatCurrency(pricing.tax)}</span>
-                </div>
                 {pricing.deliveryFee > 0 && (
                   <div className="flex justify-between">
                     <span>Delivery</span>
@@ -361,19 +361,29 @@ export default function CheckoutPage() {
             <h2 className="font-display text-lg font-bold text-forest mb-4">Payment</h2>
             <div className="space-y-3">
               {settings.stripeEnabled && (
-                <label className="flex cursor-pointer items-center gap-3 rounded-xl border-2 border-beige p-4 has-[:checked]:border-dino has-[:checked]:bg-dino/5">
-                  <input type="radio" value="stripe" {...register("paymentMethod")} />
-                  <CreditCard size={20} className="text-dino" />
-                  <span className="font-semibold">Pay with Card (Stripe)</span>
-                </label>
+                <>
+                  <label className="flex cursor-pointer items-center gap-3 rounded-xl border-2 border-beige p-4 has-[:checked]:border-dino has-[:checked]:bg-dino/5">
+                    <input type="radio" value="stripe" {...register("paymentMethod")} />
+                    <CreditCard size={20} className="text-dino" />
+                    <span className="font-semibold">Pay by Stripe</span>
+                  </label>
+                  <label className="flex cursor-pointer items-center gap-3 rounded-xl border-2 border-beige p-4 has-[:checked]:border-dino has-[:checked]:bg-dino/5">
+                    <input type="radio" value="stripe_debit" {...register("paymentMethod")} />
+                    <Banknote size={20} className="text-dino" />
+                    <span className="font-semibold">Pay by debit card</span>
+                  </label>
+                </>
               )}
-              {settings.payOnPickupEnabled && (
-                <label className="flex cursor-pointer items-center gap-3 rounded-xl border-2 border-beige p-4 has-[:checked]:border-dino has-[:checked]:bg-dino/5">
-                  <input type="radio" value="pay_on_pickup" {...register("paymentMethod")} />
-                  <Wallet size={20} className="text-dino" />
-                  <span className="font-semibold">Pay on Pickup</span>
-                </label>
-              )}
+              <label className="flex cursor-pointer items-start gap-3 rounded-xl border-2 border-beige p-4 has-[:checked]:border-dino has-[:checked]:bg-dino/5">
+                <input type="radio" value="e_transfer" {...register("paymentMethod")} className="mt-1" />
+                <Mail size={20} className="text-dino shrink-0 mt-0.5" />
+                <div>
+                  <span className="font-semibold block">Pay by e-Transfer</span>
+                  <span className="text-sm text-charcoal/60">
+                    Send payment to <strong>{E_TRANSFER_EMAIL}</strong> — include your order number in the message.
+                  </span>
+                </div>
+              </label>
             </div>
           </section>
 
@@ -398,9 +408,9 @@ export default function CheckoutPage() {
             {loading ? <Loader2 className="animate-spin" size={20} /> : null}
             {loading
               ? "Processing..."
-              : paymentMethod === "stripe"
-                ? `Pay Now — ${pricing ? formatCurrency(pricing.total) : "..."}`
-                : `Place Order — ${pricing ? formatCurrency(pricing.total) : "..."}`}
+              : paymentMethod === "e_transfer"
+                ? `Place Order — ${pricing ? formatCurrency(pricing.total) : "..."}`
+                : `Pay Now — ${pricing ? formatCurrency(pricing.total) : "..."}`}
           </button>
         </form>
       </div>
@@ -422,10 +432,10 @@ export default function CheckoutPage() {
           >
             {loading ? (
               <Loader2 className="animate-spin" size={18} />
-            ) : paymentMethod === "stripe" ? (
-              "Pay Now"
-            ) : (
+            ) : paymentMethod === "e_transfer" ? (
               "Place Order"
+            ) : (
+              "Pay Now"
             )}
           </button>
         </div>

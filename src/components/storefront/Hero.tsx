@@ -108,7 +108,7 @@ export function Hero({ settings }: HeroProps) {
               className="btn-gradient inline-flex w-full items-center justify-center rounded-full px-6 py-3.5 text-sm font-bold uppercase tracking-wide text-cream shadow-lg shadow-forest/30 sm:w-auto sm:px-8"
               whileTap={reducedMotion ? {} : { scale: 0.98 }}
             >
-              Shop Fresh Bakes
+              Shop Baked Goods
             </motion.a>
             <a
               href="#shop"
@@ -122,7 +122,7 @@ export function Hero({ settings }: HeroProps) {
             {[
               { icon: Leaf, label: "Organic Home Baking" },
               { icon: MapPin, label: "Locally Sourced" },
-              { icon: Wheat, label: "Gluten-Free Options" },
+              { icon: Wheat, label: "Sourdough Tradition" },
             ].map(({ icon: Icon, label }) => (
               <div key={label} className="flex items-center gap-2.5">
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-white to-beige/50 text-forest shadow-sm ring-1 ring-forest/10">

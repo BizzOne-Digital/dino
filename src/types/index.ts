@@ -10,7 +10,7 @@ export type OrderStatus =
 
 export type PaymentStatus = "pending" | "paid" | "failed" | "refunded";
 export type FulfillmentMethod = "pickup" | "delivery";
-export type PaymentMethod = "stripe" | "pay_on_pickup";
+export type PaymentMethod = "stripe" | "stripe_debit" | "e_transfer" | "pay_on_pickup";
 
 export interface CartItem {
   productId: string;
