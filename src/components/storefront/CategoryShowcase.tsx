@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
+import { CategoryProductsModal, type CategoryModalTarget } from "./CategoryProductsModal";
 import { formatCurrency } from "@/lib/utils";
 import { isPublicImageUrl, resolvePublicImageUrl } from "@/lib/product-image";
 
@@ -68,6 +70,7 @@ const HIDDEN_SLUGS = new Set(["merchandise", "gluten-free"]);
 
 export function CategoryShowcase({ categories }: CategoryShowcaseProps) {
   const reducedMotion = useReducedMotion();
+  const [activeCategory, setActiveCategory] = useState<CategoryModalTarget | null>(null);
   const source = (categories?.length ? categories : DEFAULT_CATEGORIES).filter(
     (c) => !HIDDEN_SLUGS.has(c.slug)
   );
@@ -108,10 +111,11 @@ export function CategoryShowcase({ categories }: CategoryShowcaseProps) {
           }`}
         >
           {items.map((cat, i) => (
-            <motion.a
+            <motion.button
               key={cat._id}
-              href={`#shop?category=${cat.slug}`}
-              className="group relative min-w-[72vw] shrink-0 snap-center overflow-hidden rounded-2xl aspect-[3/4] shadow-lg sm:min-w-0 sm:aspect-[4/5]"
+              type="button"
+              onClick={() => setActiveCategory({ slug: cat.slug, name: cat.name })}
+              className="group relative min-w-[72vw] shrink-0 snap-center overflow-hidden rounded-2xl aspect-[3/4] shadow-lg sm:min-w-0 sm:aspect-[4/5] text-left cursor-pointer"
               initial={reducedMotion ? {} : { opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -150,10 +154,12 @@ export function CategoryShowcase({ categories }: CategoryShowcaseProps) {
                   </p>
                 )}
               </div>
-            </motion.a>
+            </motion.button>
           ))}
         </div>
       </div>
+
+      <CategoryProductsModal category={activeCategory} onClose={() => setActiveCategory(null)} />
     </section>
   );
 }

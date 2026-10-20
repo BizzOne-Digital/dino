@@ -176,6 +176,18 @@ export function ShopSection({ initialSearch = "", initialCategory = "" }: ShopSe
     fetchProducts();
   }, [fetchProducts]);
 
+  useEffect(() => {
+    const applyHashCategory = () => {
+      const raw = window.location.hash.replace(/^#/, "");
+      const query = raw.includes("?") ? raw.split("?")[1] : raw.startsWith("shop?") ? raw.slice(5) : "";
+      const slug = new URLSearchParams(query).get("category");
+      if (slug) setCategory(slug);
+    };
+    applyHashCategory();
+    window.addEventListener("hashchange", applyHashCategory);
+    return () => window.removeEventListener("hashchange", applyHashCategory);
+  }, []);
+
   const openQuickView = (product: Product) => {
     setQuickView(product);
     setSelectedVariant(getProductVariantId(product));
@@ -286,7 +298,10 @@ export function ShopSection({ initialSearch = "", initialCategory = "" }: ShopSe
                   .map((c) => (
                   <button
                     key={c._id}
-                    onClick={() => setCategory(c.slug)}
+                    onClick={() => {
+                      setCategory(c.slug);
+                      window.location.hash = `shop?category=${c.slug}`;
+                    }}
                     className={cn(
                       "rounded-full px-4 py-2 text-sm font-medium transition-colors",
                       category === c.slug
