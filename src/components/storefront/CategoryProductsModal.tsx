@@ -7,6 +7,8 @@ import { X, ShoppingBag, Loader2 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { formatCurrency, cn } from "@/lib/utils";
 import { resolveProductImageUrl } from "@/lib/product-image";
+import { canPurchaseProduct } from "@/lib/product-availability";
+import { isMadeToOrder, MADE_TO_ORDER_LABEL } from "@/lib/made-to-order";
 
 interface ProductVariant {
   _id?: string;
@@ -25,6 +27,7 @@ interface Product {
   media: { url: string; alt?: string }[];
   variants: ProductVariant[];
   inStock: boolean;
+  isRequestOnly?: boolean;
   categorySlug: string;
 }
 
@@ -179,6 +182,7 @@ export function CategoryProductsModal({
                     const selectedId = getVariantId(product);
                     const variant = findVariant(product, selectedId);
                     const price = variant?.price ?? product.effectivePrice;
+                    const canAdd = canPurchaseProduct(product, variant);
                     return (
                       <li
                         key={product._id}
@@ -199,9 +203,16 @@ export function CategoryProductsModal({
                           )}
                         </div>
                         <div className="flex min-w-0 flex-1 flex-col">
-                          <h3 className="font-display font-semibold text-forest text-sm leading-snug">
-                            {product.name}
-                          </h3>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <h3 className="font-display font-semibold text-forest text-sm leading-snug">
+                              {product.name}
+                            </h3>
+                            {isMadeToOrder(product) && (
+                              <span className="rounded-full bg-forest/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-forest">
+                                {MADE_TO_ORDER_LABEL}
+                              </span>
+                            )}
+                          </div>
                           {product.shortDescription && (
                             <p className="mt-0.5 text-xs text-charcoal/55 line-clamp-2">
                               {product.shortDescription}
@@ -232,11 +243,11 @@ export function CategoryProductsModal({
                             <span className="font-bold text-forest">{formatCurrency(price)}</span>
                             <button
                               type="button"
-                              disabled={!product.inStock}
+                              disabled={!canAdd}
                               onClick={() => handleAddToCart(product)}
                               className={cn(
                                 "rounded-full px-4 py-2 text-xs font-semibold text-cream",
-                                product.inStock ? "bg-forest hover:bg-dino" : "bg-charcoal/30"
+                                canAdd ? "bg-forest hover:bg-dino" : "bg-charcoal/30"
                               )}
                             >
                               Add to Cart

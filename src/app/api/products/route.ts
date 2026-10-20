@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { Product } from "@/models/Product";
+import { ProductCategory } from "@/models/ProductCategory";
 import { getEffectivePrice, isProductOnSale } from "@/lib/pricing-helpers";
 import {
   COMBO_PRODUCT_SLUG,
@@ -24,7 +25,14 @@ export async function GET(request: Request) {
       slug: { $nin: [...HIDDEN_PRODUCT_SLUGS] },
       categorySlug: { $nin: [...HIDDEN_CATEGORY_SLUGS] },
     };
-    if (category) filter.categorySlug = category;
+    if (category) {
+      const catDoc = await ProductCategory.findOne({ slug: category }).select("_id").lean();
+      if (catDoc) {
+        filter.$or = [{ categorySlug: category }, { category: catDoc._id }];
+      } else {
+        filter.categorySlug = category;
+      }
+    }
     if (inStock === "true") filter.inStock = true;
     if (search) filter.$text = { $search: search };
 

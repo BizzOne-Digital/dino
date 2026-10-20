@@ -248,11 +248,11 @@ export function ProductForm({ initial, onSubmit, submitLabel = "Save Product" }:
 
       <div className="border-t border-gray-100 pt-6">
         <h3 className="font-semibold text-forest mb-4">Options & SEO</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-2">
           {[
             ["isGlutenFree", "Gluten Free"],
             ["isFeatured", "Featured"],
-            ["isRequestOnly", "Request Only"],
+            ["isRequestOnly", "Made to order"],
             ["inStock", "In Stock"],
             ["isPublished", "Published"],
           ].map(([key, label]) => (
@@ -266,6 +266,9 @@ export function ProductForm({ initial, onSubmit, submitLabel = "Save Product" }:
             </label>
           ))}
         </div>
+        <p className="text-xs text-charcoal/50 mb-4">
+          <strong>Made to order:</strong> shows a badge on the shop; customers can still add the item to cart.
+        </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className={labelClass}>SEO Title</label>

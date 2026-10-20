@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { ProductCategory } from "@/models/ProductCategory";
+import { Product } from "@/models/Product";
 import { requireAdmin, logAudit } from "@/lib/admin-auth";
 import { slugify } from "@/lib/utils";
 import { sanitizeStoredImageUrl } from "@/lib/product-image";
@@ -40,8 +41,14 @@ export async function PUT(request: Request) {
     const { id, ...data } = await request.json();
     if (data.image !== undefined) data.image = sanitizeStoredImageUrl(data.image);
     await connectDB();
+    const existing = await ProductCategory.findById(id);
+    if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
     if (data.name) data.slug = slugify(data.name);
     const category = await ProductCategory.findByIdAndUpdate(id, data, { new: true });
+    if (category && data.slug && data.slug !== existing.slug) {
+      await Product.updateMany({ category: id }, { $set: { categorySlug: data.slug } });
+    }
     if (!category) return NextResponse.json({ error: "Not found" }, { status: 404 });
     await logAudit(session!.user.id, session!.user.email, "update", "category", id);
     return NextResponse.json({ category: { ...category.toObject(), _id: category._id.toString() } });

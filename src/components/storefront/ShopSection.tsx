@@ -16,6 +16,8 @@ import {
 import { useCart } from "@/context/CartContext";
 import { formatCurrency, cn } from "@/lib/utils";
 import { resolveProductImageUrl } from "@/lib/product-image";
+import { canPurchaseProduct } from "@/lib/product-availability";
+import { isMadeToOrder, MADE_TO_ORDER_LABEL } from "@/lib/made-to-order";
 
 import { HIDDEN_CATEGORY_SLUGS } from "@/lib/storefront-constants";
 
@@ -331,7 +333,10 @@ export function ShopSection({ initialSearch = "", initialCategory = "" }: ShopSe
           <p className="text-center text-charcoal/60 py-16">No products found. Try adjusting your filters.</p>
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {products.map((product, i) => (
+            {products.map((product, i) => {
+              const selectedVar = findVariant(product, getProductVariantId(product));
+              const canAdd = canPurchaseProduct(product, selectedVar);
+              return (
               <motion.article
                 key={product._id}
                 className="group relative overflow-hidden rounded-2xl bg-white shadow-md transition-shadow hover:shadow-xl"
@@ -354,11 +359,18 @@ export function ShopSection({ initialSearch = "", initialCategory = "" }: ShopSe
                       <ShoppingBag className="text-beige" size={48} />
                     </div>
                   )}
-                  {product.onSale && (
-                    <span className="absolute top-3 left-3 rounded-full bg-caramel px-3 py-1 text-xs font-bold text-cream">
-                      Sale
-                    </span>
-                  )}
+                  <div className="absolute top-3 left-3 flex flex-col gap-1.5 items-start">
+                    {isMadeToOrder(product) && (
+                      <span className="rounded-full bg-forest/90 px-3 py-1 text-xs font-bold text-cream">
+                        {MADE_TO_ORDER_LABEL}
+                      </span>
+                    )}
+                    {product.onSale && (
+                      <span className="rounded-full bg-caramel px-3 py-1 text-xs font-bold text-cream">
+                        Sale
+                      </span>
+                    )}
+                  </div>
                   <div className="absolute inset-x-0 bottom-0 flex gap-2 p-3 opacity-100 sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100">
                     <button
                       onClick={() => openQuickView(product)}
@@ -369,7 +381,7 @@ export function ShopSection({ initialSearch = "", initialCategory = "" }: ShopSe
                     </button>
                     <button
                       onClick={() => handleAddToCart(product, 1, getProductVariantId(product))}
-                      disabled={!product.inStock}
+                      disabled={!canAdd}
                       className="flex-1 rounded-full bg-forest py-2 text-sm font-medium text-cream hover:bg-dino disabled:opacity-50"
                     >
                       Add to Cart
@@ -395,7 +407,7 @@ export function ShopSection({ initialSearch = "", initialCategory = "" }: ShopSe
                         </span>
                       )}
                     </div>
-                    {!product.inStock && (
+                    {!canAdd && (
                       <span className="shrink-0 text-xs font-medium text-caramel">Out of Stock</span>
                     )}
                   </div>
@@ -415,7 +427,7 @@ export function ShopSection({ initialSearch = "", initialCategory = "" }: ShopSe
                     </button>
                     <button
                       onClick={() => handleAddToCart(product, 1, getProductVariantId(product))}
-                      disabled={!product.inStock}
+                      disabled={!canAdd}
                       className="flex-1 rounded-full bg-forest py-2.5 text-xs font-semibold text-cream disabled:opacity-50"
                     >
                       Add to Cart
@@ -423,7 +435,8 @@ export function ShopSection({ initialSearch = "", initialCategory = "" }: ShopSe
                   </div>
                 </div>
               </motion.article>
-            ))}
+            );
+            })}
           </div>
         )}
       </div>
@@ -461,7 +474,14 @@ export function ShopSection({ initialSearch = "", initialCategory = "" }: ShopSe
                 )}
               </div>
               <div className="flex flex-col p-6 lg:p-8">
-                <h3 className="font-display text-2xl font-bold text-forest">{quickView.name}</h3>
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="font-display text-2xl font-bold text-forest">{quickView.name}</h3>
+                  {isMadeToOrder(quickView) && (
+                    <span className="rounded-full bg-forest/10 px-3 py-1 text-xs font-semibold text-forest">
+                      {MADE_TO_ORDER_LABEL}
+                    </span>
+                  )}
+                </div>
                 <p className="mt-2 text-charcoal/70">{quickView.description || quickView.shortDescription}</p>
                 <div className="mt-4 flex items-center gap-3">
                   <span className="text-2xl font-bold text-forest">
@@ -503,7 +523,7 @@ export function ShopSection({ initialSearch = "", initialCategory = "" }: ShopSe
                   </div>
                   <button
                     onClick={() => handleAddToCart(quickView, quantity, selectedVariant)}
-                    disabled={!quickView.inStock}
+                    disabled={!canPurchaseProduct(quickView, findVariant(quickView, selectedVariant))}
                     className="flex-1 rounded-full bg-forest py-3 font-semibold text-cream hover:bg-dino disabled:opacity-50 transition-colors"
                   >
                     Add to Cart

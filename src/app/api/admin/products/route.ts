@@ -6,6 +6,7 @@ import { ProductCategory } from "@/models/ProductCategory";
 import { requireAdmin, logAudit } from "@/lib/admin-auth";
 import { slugify } from "@/lib/utils";
 import { adminProductSchema } from "@/lib/admin-product-schema";
+import { resolveAdminProductPayload } from "@/lib/admin-product-persist";
 
 export async function GET(request: Request) {
   const { error } = await requireAdmin();
@@ -37,8 +38,13 @@ export async function POST(request: Request) {
   if (error) return error;
 
   try {
-    const data = adminProductSchema.parse(await request.json());
+    const parsed = adminProductSchema.parse(await request.json());
     await connectDB();
+
+    const data = await resolveAdminProductPayload(parsed);
+    if (!data) {
+      return NextResponse.json({ error: "Invalid category" }, { status: 400 });
+    }
 
     const slug = slugify(data.name);
     const existing = await Product.findOne({ slug });
