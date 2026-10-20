@@ -36,6 +36,11 @@ export function resolveProductImageUrl(url?: string | null): string {
   return resolvePublicImageUrl(url);
 }
 
+/** Bypass next/image optimizer for MongoDB-backed upload URLs. */
+export function isStoredUploadImageSrc(src: string): boolean {
+  return src.startsWith("/api/uploads/");
+}
+
 /** Strip invalid URLs before saving to MongoDB (e.g. pasted desktop paths). */
 export function sanitizeStoredImageUrl(url?: string | null): string {
   if (!url?.trim()) return "";

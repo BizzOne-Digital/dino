@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { StoredUpload } from "@/models/StoredUpload";
-import { isUploadFolder, sanitizeUploadFilename } from "@/lib/stored-uploads";
+import {
+  isUploadFolder,
+  sanitizeUploadFilename,
+  storedUploadDataToBuffer,
+} from "@/lib/stored-uploads";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -23,7 +27,10 @@ export async function GET(
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 
-    const body = Buffer.isBuffer(doc.data) ? doc.data : Buffer.from(doc.data);
+    const body = storedUploadDataToBuffer(doc.data);
+    if (!body?.length) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
 
     return new NextResponse(new Uint8Array(body), {
       status: 200,

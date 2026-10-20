@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { useCart } from "@/context/CartContext";
 import { formatCurrency } from "@/lib/utils";
 import { resolvePublicImageUrl } from "@/lib/product-image";
+import { ProductImage } from "@/components/ui/ProductImage";
 import type { PricingResult } from "@/types";
 
 const checkoutSchema = z
@@ -239,7 +240,7 @@ export default function CheckoutPage() {
               {items.map((item) => (
                 <li key={`${item.productId}-${item.variantId}`} className="flex gap-3 min-w-0">
                   {item.image && (
-                    <Image src={resolvePublicImageUrl(item.image)} alt="" width={48} height={48} className="rounded-lg object-cover shrink-0" />
+                    <ProductImage src={resolvePublicImageUrl(item.image)} alt="" width={48} height={48} className="rounded-lg object-cover shrink-0" />
                   )}
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-sm truncate">{item.name}</p>

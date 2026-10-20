@@ -4,9 +4,9 @@ import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import Image from "next/image";
 import { Plus, Search, Pencil, Trash2, Eye, EyeOff } from "lucide-react";
 import { resolveProductImageUrl } from "@/lib/product-image";
+import { ProductImage } from "@/components/ui/ProductImage";
 import { formatCurrency } from "@/lib/utils";
 import { AdminButton, AdminCard, AdminPageHeader, EmptyState, inputClass, LoadingState } from "@/components/admin/admin-ui";
 
@@ -24,22 +24,32 @@ export default function ProductsPage() {
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [pages, setPages] = useState(1);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
     const params = new URLSearchParams();
+    params.set("page", String(page));
     if (search) params.set("search", search);
     const res = await fetch(`/api/admin/products?${params}`);
     const data = await res.json();
     setProducts(data.products || []);
+    setPages(data.pages || 1);
+    setTotal(data.total ?? 0);
     setLoading(false);
-  }, [search]);
+  }, [search, page]);
 
   useEffect(() => {
     const timer = setTimeout(fetchProducts, 300);
     return () => clearTimeout(timer);
   }, [fetchProducts]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search]);
 
   async function togglePublished(id: string, isPublished: boolean) {
     const res = await fetch(`/api/admin/products/${id}`, {
@@ -96,6 +106,7 @@ export default function ProductsPage() {
         ) : products.length === 0 ? (
           <EmptyState message="No products found" />
         ) : (
+          <>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -114,7 +125,7 @@ export default function ProductsPage() {
                   <tr key={p._id} className="border-b border-gray-50 hover:bg-gray-50">
                     <td className="py-3">
                       <div className="relative h-10 w-10 overflow-hidden rounded-lg bg-gray-100">
-                        <Image
+                        <ProductImage
                           src={resolveProductImageUrl(p.media?.[0]?.url)}
                           alt=""
                           fill
@@ -153,6 +164,26 @@ export default function ProductsPage() {
               </tbody>
             </table>
           </div>
+          {pages > 1 && (
+            <div className="flex flex-col items-center justify-center gap-2 mt-4 pt-4 border-t border-gray-100 sm:flex-row">
+              <AdminButton variant="secondary" disabled={page <= 1} onClick={() => setPage(page - 1)}>
+                Previous
+              </AdminButton>
+              <span className="text-sm text-gray-500">
+                Page {page} of {pages}
+                {total > 0 && (
+                  <span className="text-gray-400">
+                    {" "}
+                    · {total} product{total === 1 ? "" : "s"}
+                  </span>
+                )}
+              </span>
+              <AdminButton variant="secondary" disabled={page >= pages} onClick={() => setPage(page + 1)}>
+                Next
+              </AdminButton>
+            </div>
+          )}
+          </>
         )}
       </AdminCard>
     </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
+import { ProductImage } from "@/components/ui/ProductImage";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { CategoryProductsModal, type CategoryModalTarget } from "./CategoryProductsModal";
@@ -124,7 +124,7 @@ export function CategoryShowcase({ categories }: CategoryShowcaseProps) {
               style={{ transformStyle: "preserve-3d" }}
             >
               {cat.image && isPublicImageUrl(cat.image) ? (
-                <Image
+                <ProductImage
                   src={cat.image}
                   alt={cat.name}
                   fill

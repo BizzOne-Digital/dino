@@ -31,6 +31,28 @@ export function extensionForMime(mimeType: string): string | null {
   return MIME_TO_EXT[mimeType] ?? null;
 }
 
+/** Mongoose lean() often returns BSON Binary instead of Node Buffer. */
+export function storedUploadDataToBuffer(data: unknown): Buffer | null {
+  if (!data) return null;
+  if (Buffer.isBuffer(data)) return data;
+
+  if (typeof data === "object" && data !== null) {
+    const record = data as Record<string, unknown>;
+    if (record.buffer instanceof Uint8Array) {
+      return Buffer.from(record.buffer);
+    }
+    if (record.type === "Buffer" && Array.isArray(record.data)) {
+      return Buffer.from(record.data as number[]);
+    }
+  }
+
+  if (data instanceof Uint8Array) {
+    return Buffer.from(data);
+  }
+
+  return null;
+}
+
 export async function deleteStoredUploadByUrl(url: string): Promise<boolean> {
   const parsed = parseStoredUploadUrl(url);
   if (!parsed) return false;

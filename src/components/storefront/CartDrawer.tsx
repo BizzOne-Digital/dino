@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
+import { ProductImage } from "@/components/ui/ProductImage";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { X, Plus, Minus, ShoppingBag, Trash2, Gift, Loader2 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
@@ -156,7 +156,7 @@ export function CartDrawer() {
                     >
                       <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-beige/30">
                         {item.image ? (
-                          <Image
+                          <ProductImage
                             src={resolvePublicImageUrl(item.image)}
                             alt={item.name}
                             fill

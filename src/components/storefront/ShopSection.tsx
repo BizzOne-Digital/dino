@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import Image from "next/image";
+import { ProductImage } from "@/components/ui/ProductImage";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   Search,
@@ -343,7 +343,7 @@ export function ShopSection({ initialSearch = "", initialCategory = "" }: ShopSe
               >
                 <div className="relative aspect-square overflow-hidden">
                   {product.media[0]?.url ? (
-                    <Image
+                    <ProductImage
                       src={resolveProductImageUrl(product.media[0].url)}
                       alt={product.media[0].alt || product.name}
                       fill
@@ -452,7 +452,7 @@ export function ShopSection({ initialSearch = "", initialCategory = "" }: ShopSe
               </button>
               <div className="relative h-48 shrink-0 sm:h-64 lg:h-auto lg:min-h-[320px] lg:aspect-auto">
                 {quickView.media[0]?.url && (
-                  <Image
+                  <ProductImage
                     src={resolveProductImageUrl(quickView.media[0].url)}
                     alt={quickView.name}
                     fill

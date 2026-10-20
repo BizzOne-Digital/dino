@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import Image from "next/image";
+import { ProductImage } from "@/components/ui/ProductImage";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { X, ShoppingBag, Loader2 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
@@ -186,7 +186,7 @@ export function CategoryProductsModal({
                       >
                         <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-beige/30">
                           {product.media[0]?.url ? (
-                            <Image
+                            <ProductImage
                               src={resolveProductImageUrl(product.media[0].url)}
                               alt={product.name}
                               fill
