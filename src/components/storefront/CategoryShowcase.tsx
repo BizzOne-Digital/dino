@@ -7,6 +7,7 @@ import { ArrowUpRight } from "lucide-react";
 import { CategoryProductsModal, type CategoryModalTarget } from "./CategoryProductsModal";
 import { formatCurrency } from "@/lib/utils";
 import { isPublicImageUrl, resolvePublicImageUrl } from "@/lib/product-image";
+import { HIDDEN_CATEGORY_SLUGS } from "@/lib/storefront-constants";
 
 interface Category {
   _id: string;
@@ -66,7 +67,7 @@ interface CategoryShowcaseProps {
 }
 
 const FALLBACK_BY_SLUG = Object.fromEntries(DEFAULT_CATEGORIES.map((c) => [c.slug, c]));
-const HIDDEN_SLUGS = new Set(["merchandise", "gluten-free"]);
+const HIDDEN_SLUGS = new Set<string>(HIDDEN_CATEGORY_SLUGS);
 
 export function CategoryShowcase({ categories }: CategoryShowcaseProps) {
   const reducedMotion = useReducedMotion();
@@ -74,7 +75,7 @@ export function CategoryShowcase({ categories }: CategoryShowcaseProps) {
   const source = (categories?.length ? categories : DEFAULT_CATEGORIES).filter(
     (c) => !HIDDEN_SLUGS.has(c.slug)
   );
-  const items = source.slice(0, 5).map((cat) => {
+  const items = source.map((cat) => {
     const fallback = FALLBACK_BY_SLUG[cat.slug];
     return {
       ...cat,
@@ -107,7 +108,9 @@ export function CategoryShowcase({ categories }: CategoryShowcaseProps) {
           className={`-mx-4 flex gap-4 overflow-x-auto px-4 pb-2 scrollbar-hide snap-x snap-mandatory sm:mx-0 sm:grid sm:overflow-visible sm:pb-0 sm:gap-6 ${
             items.length <= 3
               ? "sm:grid-cols-2 lg:grid-cols-3 lg:max-w-5xl lg:mx-auto"
-              : "sm:grid-cols-2 lg:grid-cols-4"
+              : items.length <= 6
+                ? "sm:grid-cols-2 lg:grid-cols-3"
+                : "sm:grid-cols-2 lg:grid-cols-4"
           }`}
         >
           {items.map((cat, i) => (
