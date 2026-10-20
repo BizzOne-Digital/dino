@@ -12,6 +12,7 @@ import {
   labelClass,
   LoadingState,
 } from "@/components/admin/admin-ui";
+import { AdminImageField } from "@/components/admin/AdminImageField";
 
 interface Category {
   _id: string;
@@ -123,16 +124,13 @@ export default function CategoriesPage() {
                 <textarea className={inputClass} rows={2} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
               </div>
               <div className="md:col-span-2">
-                <label className={labelClass}>Category Image URL</label>
-                <input
-                  className={inputClass}
-                  placeholder="/images/categories/bagels.jpg or /api/uploads/products/…"
+                <AdminImageField
+                  label="Category image"
+                  folder="categories"
                   value={form.image}
-                  onChange={(e) => setForm({ ...form, image: e.target.value })}
+                  onChange={(url) => setForm({ ...form, image: url })}
+                  helperText="Shown on the home page category cards"
                 />
-                <p className="mt-1 text-xs text-gray-500">
-                  Use a site path or upload via Products — not a path from your computer (e.g. /Users/…).
-                </p>
               </div>
               <label className="flex items-center gap-2 text-sm">
                 <input type="checkbox" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} />
