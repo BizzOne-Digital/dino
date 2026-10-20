@@ -5,7 +5,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion, useReducedMotion } from "framer-motion";
-import { Mail, Phone, MapPin, Send, Loader2 } from "lucide-react";
+import { Mail, Phone, MapPin, Send, Loader2, Camera as InstagramIcon, Users as FacebookIcon } from "lucide-react";
+import { DEFAULT_SOCIAL_LINKS } from "@/lib/storefront-constants";
 import { toast } from "sonner";
 import { isPlaceholderPickupAddress } from "@/lib/site-settings";
 import { phoneToTelHref } from "@/lib/utils";
@@ -39,6 +40,11 @@ export function Contact({ settings }: ContactProps) {
     resolver: zodResolver(contactSchema),
     defaultValues: { type: "general" },
   });
+
+  const facebookUrl =
+    settings.socialLinks?.facebook?.trim() || DEFAULT_SOCIAL_LINKS.facebook;
+  const instagramUrl =
+    settings.socialLinks?.instagram?.trim() || DEFAULT_SOCIAL_LINKS.instagram;
 
   const onSubmit = async (data: ContactFormData) => {
     setSubmitting(true);
@@ -109,6 +115,32 @@ export function Contact({ settings }: ContactProps) {
                   </div>
                   <span className="break-words text-sm sm:text-base">{settings.pickup.address}</span>
                 </div>
+              )}
+              {facebookUrl && (
+                <a
+                  href={facebookUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 text-charcoal/70 hover:text-forest transition-colors min-w-0"
+                >
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-dino/10">
+                    <FacebookIcon size={18} className="text-dino" />
+                  </div>
+                  <span className="text-sm sm:text-base">Facebook</span>
+                </a>
+              )}
+              {instagramUrl && (
+                <a
+                  href={instagramUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 text-charcoal/70 hover:text-forest transition-colors min-w-0"
+                >
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-dino/10">
+                    <InstagramIcon size={18} className="text-dino" />
+                  </div>
+                  <span className="text-sm sm:text-base">Instagram</span>
+                </a>
               )}
             </div>
           </motion.div>
