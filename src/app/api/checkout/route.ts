@@ -16,6 +16,7 @@ import { getSiteUrl } from "@/lib/site-url";
 import { sendOrderConfirmationEmail } from "@/lib/email";
 import { rateLimit } from "@/lib/rate-limit";
 import { cardProcessingFeeCents, orderTotalWithCardFee } from "@/lib/card-processing-fee";
+import { MIN_ORDER_CENTS, meetsMinimumOrder } from "@/lib/storefront-constants";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -147,6 +148,15 @@ export async function POST(request: Request) {
       deliveryFee,
       fulfillment: data.fulfillment,
     });
+
+    if (!meetsMinimumOrder(pricing.subtotal)) {
+      return NextResponse.json(
+        {
+          error: `Minimum order is $${(MIN_ORDER_CENTS / 100).toFixed(2)}. Add a little more to your cart.`,
+        },
+        { status: 400 }
+      );
+    }
 
     const orderItems = data.items.map((item) => {
       const product = products.find((p) => p._id.toString() === item.productId)!;

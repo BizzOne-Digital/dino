@@ -9,7 +9,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion } from "framer-motion";
 import { ArrowLeft, Loader2, MapPin, Package, CreditCard, Mail } from "lucide-react";
-import { E_TRANSFER_EMAIL } from "@/lib/storefront-constants";
+import {
+  E_TRANSFER_EMAIL,
+  MIN_ORDER_CENTS,
+  meetsMinimumOrder,
+  minOrderShortfallCents,
+} from "@/lib/storefront-constants";
 import { cardProcessingFeeCents, orderTotalWithCardFee } from "@/lib/card-processing-fee";
 import { toast } from "sonner";
 import { useCart } from "@/context/CartContext";
@@ -91,6 +96,11 @@ export default function CheckoutPage() {
       ? orderTotalWithCardFee(pricing.total)
       : pricing?.total ?? 0;
 
+  const orderSubtotal =
+    pricing?.subtotal ?? items.reduce((s, i) => s + i.price * i.quantity, 0);
+  const minOrderMet = meetsMinimumOrder(orderSubtotal);
+  const minShortfall = minOrderShortfallCents(orderSubtotal);
+
   useEffect(() => {
     fetch("/api/site-data")
       .then((r) => r.json())
@@ -136,6 +146,10 @@ export default function CheckoutPage() {
   async function onSubmit(data: CheckoutForm) {
     if (items.length === 0) {
       toast.error("Your cart is empty");
+      return;
+    }
+    if (pricing && !meetsMinimumOrder(pricing.subtotal)) {
+      toast.error(`Minimum order is ${formatCurrency(MIN_ORDER_CENTS)}`);
       return;
     }
 
@@ -413,9 +427,16 @@ export default function CheckoutPage() {
             </label>
           </section>
 
+          {!minOrderMet && (
+            <p className="rounded-xl bg-caramel/10 px-4 py-3 text-sm text-caramel">
+              Minimum order is {formatCurrency(MIN_ORDER_CENTS)}. Add{" "}
+              {formatCurrency(minShortfall)} more to place your order.
+            </p>
+          )}
+
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !minOrderMet}
             className="hidden w-full items-center justify-center gap-2 rounded-full bg-forest py-4 font-semibold text-cream hover:bg-dino transition-colors disabled:opacity-50 lg:flex"
           >
             {loading ? <Loader2 className="animate-spin" size={20} /> : null}
@@ -440,7 +461,7 @@ export default function CheckoutPage() {
           <button
             type="submit"
             form="checkout-form"
-            disabled={loading}
+            disabled={loading || !minOrderMet}
             className="flex flex-1 max-w-[200px] items-center justify-center gap-2 rounded-full bg-forest py-3.5 text-sm font-semibold text-cream disabled:opacity-50"
           >
             {loading ? (

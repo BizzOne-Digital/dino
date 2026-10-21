@@ -12,3 +12,14 @@ export const DEFAULT_SOCIAL_LINKS = {
 } as const;
 
 export const INSTAGRAM_HANDLE = "@cookie_man1958";
+
+/** Minimum merchandise subtotal before checkout (cents). */
+export const MIN_ORDER_CENTS = 1800;
+
+export function meetsMinimumOrder(subtotalCents: number): boolean {
+  return subtotalCents >= MIN_ORDER_CENTS;
+}
+
+export function minOrderShortfallCents(subtotalCents: number): number {
+  return Math.max(0, MIN_ORDER_CENTS - subtotalCents);
+}

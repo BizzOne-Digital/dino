@@ -8,6 +8,11 @@ import { useCart } from "@/context/CartContext";
 import { formatCurrency } from "@/lib/utils";
 import { resolvePublicImageUrl } from "@/lib/product-image";
 import type { PricingResult } from "@/types";
+import {
+  MIN_ORDER_CENTS,
+  meetsMinimumOrder,
+  minOrderShortfallCents,
+} from "@/lib/storefront-constants";
 
 export function CartDrawer() {
   const reducedMotion = useReducedMotion();
@@ -60,6 +65,8 @@ export function CartDrawer() {
   }, [items, isOpen]);
 
   const subtotal = pricing?.subtotal ?? items.reduce((s, i) => s + i.price * i.quantity, 0);
+  const minOrderMet = meetsMinimumOrder(subtotal);
+  const shortfall = minOrderShortfallCents(subtotal);
 
   return (
     <AnimatePresence>
@@ -230,12 +237,28 @@ export function CartDrawer() {
                   </div>
                 )}
 
-                <a
-                  href="/checkout"
-                  className="flex w-full items-center justify-center rounded-full bg-forest py-4 font-semibold text-cream hover:bg-dino transition-colors"
-                >
-                  Checkout
-                </a>
+                {!minOrderMet && (
+                  <p className="text-center text-sm text-caramel">
+                    Minimum order {formatCurrency(MIN_ORDER_CENTS)} — add{" "}
+                    {formatCurrency(shortfall)} more to checkout.
+                  </p>
+                )}
+                {minOrderMet ? (
+                  <a
+                    href="/checkout"
+                    className="flex w-full items-center justify-center rounded-full bg-forest py-4 font-semibold text-cream hover:bg-dino transition-colors"
+                  >
+                    Checkout
+                  </a>
+                ) : (
+                  <button
+                    type="button"
+                    disabled
+                    className="flex w-full cursor-not-allowed items-center justify-center rounded-full bg-charcoal/25 py-4 font-semibold text-cream/90"
+                  >
+                    Checkout
+                  </button>
+                )}
 
                 <button
                   onClick={clearCart}
