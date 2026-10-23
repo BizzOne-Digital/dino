@@ -5,6 +5,8 @@ import { NutritionFactCard } from "@/components/nutrition/NutritionFactCard";
 import { getSiteSettings } from "@/models/SiteSettings";
 import { loadNutritionPageEntries } from "@/lib/nutrition-page-data";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Nutrition Information | Dino's Cookies & Bagels",
   description: "Approximate nutrition facts for our cookies, bagels, and baked goods.",
