@@ -18,6 +18,21 @@ export interface IProductMedia {
   order: number;
 }
 
+export interface IProductNutrition {
+  showOnPage: boolean;
+  servingSize: string;
+  calories?: number;
+  fatG?: number;
+  saturatedFatG?: number;
+  carbohydratesG?: number;
+  sugarsG?: number;
+  proteinG?: number;
+  fiberG?: number;
+  sodiumMg?: number;
+  ingredients: string;
+  allergens: string;
+}
+
 export interface IProduct {
   _id: mongoose.Types.ObjectId;
   name: string;
@@ -45,6 +60,7 @@ export interface IProduct {
   seoTitle?: string;
   seoDescription?: string;
   tags: string[];
+  nutrition?: IProductNutrition;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -57,6 +73,24 @@ const ProductVariantSchema = new Schema<IProductVariant>({
   stock: { type: Number, default: 0 },
   inStock: { type: Boolean, default: true },
 });
+
+const ProductNutritionSchema = new Schema<IProductNutrition>(
+  {
+    showOnPage: { type: Boolean, default: false },
+    servingSize: { type: String, default: "" },
+    calories: Number,
+    fatG: Number,
+    saturatedFatG: Number,
+    carbohydratesG: Number,
+    sugarsG: Number,
+    proteinG: Number,
+    fiberG: Number,
+    sodiumMg: Number,
+    ingredients: { type: String, default: "" },
+    allergens: { type: String, default: "" },
+  },
+  { _id: false }
+);
 
 const ProductMediaSchema = new Schema<IProductMedia>({
   url: { type: String, required: true },
@@ -93,6 +127,7 @@ const ProductSchema = new Schema<IProduct>(
     seoTitle: String,
     seoDescription: String,
     tags: [String],
+    nutrition: { type: ProductNutritionSchema, default: undefined },
   },
   { timestamps: true }
 );

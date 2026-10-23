@@ -43,6 +43,7 @@ export function Footer({ settings }: FooterProps) {
     { label: "Pickup & Delivery", href: "#pickup" },
     { label: "FAQ", href: "#faq" },
     { label: "Contact", href: "#contact" },
+    { label: "Nutrition", href: "/nutrition" },
   ];
 
   return (

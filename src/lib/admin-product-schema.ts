@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { productNutritionSchema } from "@/lib/product-nutrition";
 
 export const adminProductSchema = z.object({
   name: z.string().min(1),
@@ -43,4 +44,5 @@ export const adminProductSchema = z.object({
   seoTitle: z.string().optional(),
   seoDescription: z.string().optional(),
   tags: z.array(z.string()).default([]),
+  nutrition: productNutritionSchema.optional(),
 });

@@ -5,6 +5,8 @@ import { toast } from "sonner";
 import { Plus, Trash2 } from "lucide-react";
 import { AdminButton, inputClass, labelClass, selectClass } from "./admin-ui";
 import { AdminImageField } from "./AdminImageField";
+import { ProductNutritionFields } from "./ProductNutritionFields";
+import { defaultProductNutrition, normalizeProductNutrition, type ProductNutrition } from "@/lib/product-nutrition";
 
 interface Category {
   _id: string;
@@ -51,6 +53,7 @@ export interface ProductFormData {
   seoTitle?: string;
   seoDescription?: string;
   tags: string[];
+  nutrition: ProductNutrition;
 }
 
 const defaultData: ProductFormData = {
@@ -70,6 +73,7 @@ const defaultData: ProductFormData = {
   isOnSale: false,
   isPublished: false,
   tags: [],
+  nutrition: { ...defaultProductNutrition },
 };
 
 interface ProductFormProps {
@@ -92,7 +96,11 @@ export function ProductForm({ initial, onSubmit, submitLabel = "Save Product" }:
 
   useEffect(() => {
     if (initial) {
-      setForm({ ...defaultData, ...initial });
+      setForm({
+        ...defaultData,
+        ...initial,
+        nutrition: normalizeProductNutrition(initial.nutrition),
+      });
       setTagsInput((initial.tags || []).join(", "));
     }
   }, [initial]);
@@ -244,6 +252,21 @@ export function ProductForm({ initial, onSubmit, submitLabel = "Save Product" }:
             <input type="datetime-local" className={inputClass} value={form.saleEnd?.slice(0, 16) || ""} onChange={(e) => update("saleEnd", e.target.value)} />
           </div>
         </div>
+      </div>
+
+      <div className="border-t border-gray-100 pt-6">
+        <h3 className="font-semibold text-forest mb-2">Nutrition</h3>
+        <p className="text-xs text-charcoal/50 mb-4">
+          Shown on the{" "}
+          <a href="/nutrition" target="_blank" rel="noopener noreferrer" className="text-dino hover:underline">
+            public nutrition page
+          </a>{" "}
+          when enabled. You can also manage all products under Admin → Nutrition.
+        </p>
+        <ProductNutritionFields
+          value={form.nutrition}
+          onChange={(nutrition) => update("nutrition", nutrition)}
+        />
       </div>
 
       <div className="border-t border-gray-100 pt-6">
