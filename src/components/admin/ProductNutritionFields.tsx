@@ -42,7 +42,7 @@ export function ProductNutritionFields({ value, onChange }: ProductNutritionFiel
           checked={n.showOnPage}
           onChange={(e) => patch({ showOnPage: e.target.checked })}
         />
-        Show on public nutrition page
+        Show this category on the public nutrition page
       </label>
 
       <div>

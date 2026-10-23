@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
-import { Product } from "@/models/Product";
+import { ProductCategory } from "@/models/ProductCategory";
 import { requireAdmin } from "@/lib/admin-auth";
 import { normalizeProductNutrition } from "@/lib/product-nutrition";
 
@@ -9,24 +9,20 @@ export async function GET() {
   if (error) return error;
 
   await connectDB();
-  const products = await Product.find()
-    .populate("category", "name slug")
-    .select("name slug categorySlug category isPublished nutrition")
-    .sort({ categorySlug: 1, name: 1 })
+  const categories = await ProductCategory.find()
+    .select("name slug order isActive productCount nutrition")
+    .sort({ order: 1, name: 1 })
     .lean();
 
   return NextResponse.json({
-    products: products.map((p) => ({
-      _id: p._id.toString(),
-      name: p.name,
-      slug: p.slug,
-      categorySlug: p.categorySlug,
-      categoryName:
-        typeof p.category === "object" && p.category && "name" in p.category
-          ? (p.category as { name: string }).name
-          : "",
-      isPublished: p.isPublished,
-      nutrition: normalizeProductNutrition(p.nutrition),
+    categories: categories.map((c) => ({
+      _id: c._id.toString(),
+      name: c.name,
+      slug: c.slug,
+      order: c.order,
+      isActive: c.isActive,
+      productCount: c.productCount,
+      nutrition: normalizeProductNutrition(c.nutrition),
     })),
   });
 }

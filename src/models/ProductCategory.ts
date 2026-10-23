@@ -1,4 +1,6 @@
 import mongoose, { Schema, type Model } from "mongoose";
+import type { CategoryNutrition } from "@/lib/category-nutrition-schema";
+import { CategoryNutritionMongooseSchema } from "@/lib/category-nutrition-schema";
 
 export interface IProductCategory {
   _id: mongoose.Types.ObjectId;
@@ -11,6 +13,7 @@ export interface IProductCategory {
   isRequestOnly: boolean;
   order: number;
   isActive: boolean;
+  nutrition?: CategoryNutrition;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -26,6 +29,7 @@ const ProductCategorySchema = new Schema<IProductCategory>(
     isRequestOnly: { type: Boolean, default: false },
     order: { type: Number, default: 0 },
     isActive: { type: Boolean, default: true },
+    nutrition: { type: CategoryNutritionMongooseSchema, default: undefined },
   },
   { timestamps: true }
 );

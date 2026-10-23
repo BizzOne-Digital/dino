@@ -9,8 +9,6 @@ import {
   AdminCard,
   AdminPageHeader,
   LoadingState,
-  inputClass,
-  labelClass,
 } from "@/components/admin/admin-ui";
 import { ProductNutritionFields } from "@/components/admin/ProductNutritionFields";
 import {
@@ -19,65 +17,56 @@ import {
   type ProductNutrition,
 } from "@/lib/product-nutrition";
 
-interface NutritionProduct {
+interface NutritionCategory {
   _id: string;
   name: string;
-  categoryName: string;
-  isPublished: boolean;
+  slug: string;
+  isActive: boolean;
+  productCount: number;
   nutrition: ProductNutrition;
 }
 
 export default function AdminNutritionPage() {
-  const [products, setProducts] = useState<NutritionProduct[]>([]);
+  const [categories, setCategories] = useState<NutritionCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedId, setSelectedId] = useState("");
   const [draft, setDraft] = useState<ProductNutrition>(defaultProductNutrition);
   const [saving, setSaving] = useState(false);
-  const [search, setSearch] = useState("");
 
-  const fetchProducts = useCallback(async () => {
+  const fetchCategories = useCallback(async () => {
     setLoading(true);
     const res = await fetch("/api/admin/nutrition");
     const data = await res.json();
-    setProducts((data.products || []) as NutritionProduct[]);
+    setCategories((data.categories || []) as NutritionCategory[]);
     setLoading(false);
   }, []);
 
   useEffect(() => {
-    fetchProducts();
-  }, [fetchProducts]);
+    fetchCategories();
+  }, [fetchCategories]);
 
   useEffect(() => {
-    if (selectedId || products.length === 0) return;
-    setSelectedId(products[0]._id);
-  }, [products, selectedId]);
+    if (selectedId || categories.length === 0) return;
+    setSelectedId(categories[0]._id);
+  }, [categories, selectedId]);
 
   useEffect(() => {
-    const p = products.find((x) => x._id === selectedId);
-    if (p) setDraft(normalizeProductNutrition(p.nutrition));
-  }, [selectedId, products]);
-
-  const filtered = products.filter((p) => {
-    const q = search.trim().toLowerCase();
-    if (!q) return true;
-    return (
-      p.name.toLowerCase().includes(q) ||
-      p.categoryName.toLowerCase().includes(q)
-    );
-  });
+    const c = categories.find((x) => x._id === selectedId);
+    if (c) setDraft(normalizeProductNutrition(c.nutrition));
+  }, [selectedId, categories]);
 
   async function handleSave() {
     if (!selectedId) return;
     setSaving(true);
     try {
-      const res = await fetch(`/api/admin/products/${selectedId}/nutrition`, {
+      const res = await fetch(`/api/admin/categories/${selectedId}/nutrition`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(draft),
       });
       if (!res.ok) throw new Error("Save failed");
-      toast.success("Nutrition saved");
-      await fetchProducts();
+      toast.success("Category nutrition saved");
+      await fetchCategories();
     } catch {
       toast.error("Could not save nutrition");
     } finally {
@@ -85,13 +74,13 @@ export default function AdminNutritionPage() {
     }
   }
 
-  const selected = products.find((p) => p._id === selectedId);
+  const selected = categories.find((c) => c._id === selectedId);
 
   return (
     <div>
       <AdminPageHeader
         title="Nutrition"
-        description="Add nutrition facts per product for the public nutrition page"
+        description="One approximate nutrition guide per category (all cookies, all bagels, etc.)"
         action={
           <Link href="/nutrition" target="_blank">
             <AdminButton variant="secondary">
@@ -106,26 +95,25 @@ export default function AdminNutritionPage() {
       ) : (
         <div className="grid gap-6 lg:grid-cols-3">
           <AdminCard className="lg:col-span-1">
-            <label className={labelClass}>Search products</label>
-            <input
-              className={`${inputClass} mb-4`}
-              placeholder="Name or category…"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
+            <p className="text-sm text-gray-600 mb-4">
+              Select a category. Customers see <strong>one block per category</strong> on the nutrition page.
+            </p>
             <ul className="max-h-[32rem] overflow-y-auto divide-y divide-gray-100 text-sm">
-              {filtered.map((p) => (
-                <li key={p._id}>
+              {categories.map((c) => (
+                <li key={c._id}>
                   <button
                     type="button"
-                    onClick={() => setSelectedId(p._id)}
+                    onClick={() => setSelectedId(c._id)}
                     className={`w-full text-left px-2 py-3 rounded-lg transition-colors ${
-                      selectedId === p._id ? "bg-dino/10 text-forest font-medium" : "hover:bg-gray-50"
+                      selectedId === c._id ? "bg-dino/10 text-forest font-medium" : "hover:bg-gray-50"
                     }`}
                   >
-                    <span className="block">{p.name}</span>
-                    <span className="text-xs text-gray-500">{p.categoryName}</span>
-                    {p.nutrition?.showOnPage && (
+                    <span className="block">{c.name}</span>
+                    <span className="text-xs text-gray-500">
+                      {c.productCount} product{c.productCount === 1 ? "" : "s"}
+                      {!c.isActive && " · Inactive"}
+                    </span>
+                    {c.nutrition?.showOnPage && (
                       <span className="mt-1 inline-block text-[10px] uppercase tracking-wide text-green-700">
                         On nutrition page
                       </span>
@@ -139,17 +127,11 @@ export default function AdminNutritionPage() {
           <AdminCard className="lg:col-span-2">
             {selected ? (
               <>
-                <div className="flex flex-wrap items-start justify-between gap-3 mb-6">
-                  <div>
-                    <h2 className="font-display text-xl font-bold text-forest">{selected.name}</h2>
-                    <p className="text-sm text-gray-500">{selected.categoryName}</p>
-                  </div>
-                  <Link
-                    href={`/admin/products/${selected._id}`}
-                    className="text-sm text-dino hover:underline"
-                  >
-                    Edit full product
-                  </Link>
+                <div className="mb-6">
+                  <h2 className="font-display text-xl font-bold text-forest">{selected.name}</h2>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Use average or typical values for everything in this category (approximation is fine).
+                  </p>
                 </div>
                 <ProductNutritionFields value={draft} onChange={setDraft} />
                 <div className="mt-6 flex justify-end">
@@ -159,12 +141,12 @@ export default function AdminNutritionPage() {
                     ) : (
                       <Save size={16} className="inline mr-1" />
                     )}
-                    Save nutrition
+                    Save category nutrition
                   </AdminButton>
                 </div>
               </>
             ) : (
-              <p className="text-gray-500">Select a product to edit nutrition.</p>
+              <p className="text-gray-500">Select a category to edit nutrition.</p>
             )}
           </AdminCard>
         </div>

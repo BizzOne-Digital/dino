@@ -5,7 +5,6 @@ import { toast } from "sonner";
 import { Plus, Trash2 } from "lucide-react";
 import { AdminButton, inputClass, labelClass, selectClass } from "./admin-ui";
 import { AdminImageField } from "./AdminImageField";
-import { ProductNutritionFields } from "./ProductNutritionFields";
 import { defaultProductNutrition, normalizeProductNutrition, type ProductNutrition } from "@/lib/product-nutrition";
 
 interface Category {
@@ -255,18 +254,10 @@ export function ProductForm({ initial, onSubmit, submitLabel = "Save Product" }:
       </div>
 
       <div className="border-t border-gray-100 pt-6">
-        <h3 className="font-semibold text-forest mb-2">Nutrition</h3>
-        <p className="text-xs text-charcoal/50 mb-4">
-          Shown on the{" "}
-          <a href="/nutrition" target="_blank" rel="noopener noreferrer" className="text-dino hover:underline">
-            public nutrition page
-          </a>{" "}
-          when enabled. You can also manage all products under Admin → Nutrition.
+        <p className="text-sm text-charcoal/60">
+          Nutrition for the website is set <strong>per category</strong> (all cookies, all bagels, etc.) under{" "}
+          <a href="/admin/nutrition" className="text-dino hover:underline">Admin → Nutrition</a>.
         </p>
-        <ProductNutritionFields
-          value={form.nutrition}
-          onChange={(nutrition) => update("nutrition", nutrition)}
-        />
       </div>
 
       <div className="border-t border-gray-100 pt-6">

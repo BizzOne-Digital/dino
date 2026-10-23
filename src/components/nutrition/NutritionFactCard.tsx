@@ -3,9 +3,10 @@ import { formatNutrient, type ProductNutrition } from "@/lib/product-nutrition";
 interface NutritionFactCardProps {
   productName: string;
   nutrition: ProductNutrition;
+  subtitle?: string;
 }
 
-export function NutritionFactCard({ productName, nutrition }: NutritionFactCardProps) {
+export function NutritionFactCard({ productName, nutrition, subtitle }: NutritionFactCardProps) {
   const rows = [
     ["Calories", nutrition.calories != null ? `${nutrition.calories} kcal` : "—"],
     ["Fat", formatNutrient(nutrition.fatG)],
@@ -20,6 +21,7 @@ export function NutritionFactCard({ productName, nutrition }: NutritionFactCardP
   return (
     <article className="rounded-2xl border border-beige/80 bg-white p-5 shadow-sm">
       <h3 className="font-display text-lg font-bold text-forest">{productName}</h3>
+      {subtitle && <p className="mt-1 text-sm text-charcoal/55 italic">{subtitle}</p>}
       {nutrition.servingSize && (
         <p className="mt-1 text-sm text-charcoal/60">
           Serving size: <span className="text-charcoal/80">{nutrition.servingSize}</span>
