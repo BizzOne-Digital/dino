@@ -11,7 +11,7 @@ import { cn, phoneToTelHref } from "@/lib/utils";
 const NAV_LINKS = [
   { label: "Home", href: "#home" },
   { label: "Shop", href: "#shop" },
-  { label: "Our Story", href: "#story" },
+  { label: "Nutrition", href: "/nutrition" },
   { label: "Special Offers", href: "#offers" },
   { label: "Pickup & Delivery", href: "#pickup" },
   { label: "Contact", href: "#contact" },
