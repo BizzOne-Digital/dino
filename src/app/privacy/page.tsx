@@ -56,4 +56,3 @@ function PlaceholderPolicy({ type }: { type: string }) {
   );
 }
 
-export { PolicyLayout, PlaceholderPolicy };

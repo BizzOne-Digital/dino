@@ -71,9 +71,11 @@ export function calculatePromotions(
     });
 
     const totalQty = matchingItems.reduce((sum, i) => sum + i.quantity, 0);
-    if (totalQty < rule.buyQuantity) continue;
+    // "Buy 2 get 1 free" = a group of 3 units where 1 is free.
+    const groupSize = rule.buyQuantity + rule.freeQuantity;
+    if (totalQty < groupSize) continue;
 
-    const sets = Math.floor(totalQty / rule.buyQuantity);
+    const sets = Math.floor(totalQty / groupSize);
     const freeQty = sets * rule.freeQuantity;
 
     if (freeQty > 0) {

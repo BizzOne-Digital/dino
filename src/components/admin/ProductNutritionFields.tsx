@@ -16,6 +16,7 @@ function numOrUndefined(raw: string): number | undefined {
   return Number.isFinite(n) ? n : undefined;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- used for the derived type only
 const NUTRIENT_KEYS = [
   "calories",
   "fatG",

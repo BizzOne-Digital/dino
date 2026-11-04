@@ -40,7 +40,7 @@ export async function POST(request: Request) {
       PromotionRule.find({ isActive: true }),
     ]);
 
-    if (products.length !== data.items.length) {
+    if (products.length !== new Set(productIds).size) {
       return NextResponse.json({ error: "Some products are unavailable" }, { status: 400 });
     }
 
