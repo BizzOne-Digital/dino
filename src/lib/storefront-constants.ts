@@ -13,11 +13,12 @@ export const DEFAULT_SOCIAL_LINKS = {
 
 export const INSTAGRAM_HANDLE = "@cookie_man1958";
 
-/** Minimum merchandise subtotal before checkout (cents). */
-export const MIN_ORDER_CENTS = 1800;
+/** Store-wide minimum merchandise subtotal before checkout (cents). 0 = no minimum. */
+export const MIN_ORDER_CENTS = 0;
 
 export function meetsMinimumOrder(subtotalCents: number): boolean {
-  return subtotalCents >= MIN_ORDER_CENTS;
+  // An empty cart can never check out; otherwise only enforce a minimum if one is set.
+  return subtotalCents > 0 && subtotalCents >= MIN_ORDER_CENTS;
 }
 
 export function minOrderShortfallCents(subtotalCents: number): number {
